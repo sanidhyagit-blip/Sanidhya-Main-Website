@@ -255,12 +255,12 @@ export default function Membership() {
                     <div className="mf-section">
                         <h3 className="mf-section-title">Payment Details</h3>
                         <div className="mf-bank-box">
-                            <div className="mf-bank-row"><span>Bank Name</span><strong>HDFC Bank Ltd</strong></div>
-                            <div className="mf-bank-row"><span>Account Number</span><strong>50200064575256</strong></div>
-                            <div className="mf-bank-row"><span>Branch</span><strong>Pondicherry Main Branch</strong></div>
-                            <div className="mf-bank-row"><span>IFSC Code</span><strong>HDFC0000407</strong></div>
-                            <div className="mf-bank-row"><span>Swift Code</span><strong>HDFCINBB</strong></div>
-                            <div className="mf-bank-row"><span>WhatsApp (queries)</span><strong>+91-7845059475</strong></div>
+                            <div className="mf-bank-row"><span>Bank Name</span><strong>Sanidhya Inspiring Academic Excellence</strong></div>
+                            <div className="mf-bank-row"><span>Account Number</span><strong>60571391574</strong></div>
+                            <div className="mf-bank-row"><span>Branch</span><strong>Ramraoadik College Of Engineering</strong></div>
+                            <div className="mf-bank-row"><span>IFSC Code</span><strong>MAHB00001292</strong></div>
+                            {/* <div className="mf-bank-row"><span>Swift Code</span><strong>HDFCINBB</strong></div> */}
+                            {/* <div className="mf-bank-row"><span>WhatsApp (queries)</span><strong>+91-7845059475</strong></div> */}
                         </div>
                         <div className="mf-grid mf-grid-2">
                             <Select label="Payment Mode" name="paymentMode" required
