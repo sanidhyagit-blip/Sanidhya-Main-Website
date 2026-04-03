@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from 'react'
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
 
@@ -112,9 +112,9 @@ const recentActivities = [
         title: 'Faculty Development Program',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
         icon: '🎓',
-        date: 'TBA',
-        location: 'TBA',
-        registrationOpen: false,
+        date: '7th April, 2026',
+        location: 'Online',
+        registrationOpen: true,
     },
     {
         tag: 'Conference',
@@ -257,15 +257,53 @@ function SubmissionTracker() {
 
 export default function Home() {
     const [activeStep, setActiveStep] = useState(null)
+    const [showPopup, setShowPopup] = useState(false)
     useReveal()
 
+    useEffect(() => {
+        const timer = setTimeout(() => setShowPopup(true), 5000)
+        return () => clearTimeout(timer)
+    }, [])
+
     return (
-        <div className="page-enter">
-            {/* ===== HERO ===== */}
-            <section className="hero" id="hero">
-                <HeroParticles />
-                <div className="hero-overlay" />
-                <div className="hero-content">
+        <>
+            {/* ===== FDP POPUP MODAL (outside page-enter so position:fixed works) ===== */}
+            {showPopup && (
+                <div className="fdp-popup-overlay" onClick={() => setShowPopup(false)}>
+                    <div className="fdp-popup-modal" onClick={(e) => e.stopPropagation()}>
+                        <button className="fdp-popup-close" onClick={() => setShowPopup(false)} aria-label="Close">
+                            &times;
+                        </button>
+                        <img src="/fdp-poster.jpg" alt="International FDP on Supply Chain Management" className="fdp-popup-image" />
+                        <div className="fdp-popup-footer">
+                            <Link
+                                to="/author-services"
+                                className="btn btn-primary fdp-register-btn"
+                                onClick={() => setShowPopup(false)}
+                            >
+                                Register Now
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="page-enter">
+                {/* ===== MARQUEE STRIP ===== */}
+                <div className="marquee-strip">
+                    <div className="marquee-track">
+                        <span className="marquee-content">
+                            🔔 One Day International Virtual FDP &nbsp;|&nbsp; Topic: Advancements in the Supply Chain Management &nbsp;|&nbsp; REGISTER NOW! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            🔔 One Day International Virtual FDP &nbsp;|&nbsp; Topic: Advancements in the Supply Chain Management &nbsp;|&nbsp; REGISTER NOW! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </span>
+                    </div>
+                </div>
+
+                {/* ===== HERO ===== */}
+                <section className="hero" id="hero">
+                    <HeroParticles />
+                    <div className="hero-overlay" />
+                    <div className="hero-content">
                     <div className="hero-text">
                         <div className="hero-badge" style={{ fontSize: '1.3rem' }}>Welcome to Sanidhya</div>
                         <h1>
@@ -417,7 +455,7 @@ export default function Home() {
                                     </p>
                                     <p style={{ fontSize: '0.88rem' }}>{act.desc}</p>
                                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                        <Link to="/research/international-conference" className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
+                                        <Link to="/development/fdp" className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
                                             View Details →
                                         </Link>
                                         {act.registrationOpen && (
@@ -451,5 +489,6 @@ export default function Home() {
                 </div>
             </section>
         </div>
+        </>
     )
 }
