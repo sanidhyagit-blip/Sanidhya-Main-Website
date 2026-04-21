@@ -64,7 +64,7 @@ const recentActivities = [
         icon: '🎓',
         date: 'TBA',
         location: 'TBA',
-        registrationOpen: false,
+        registrationOpen: true,
     },      
     {
         tag: 'Conference',
@@ -114,7 +114,7 @@ const recentActivities = [
         icon: '🎓',
         date: '7th April, 2026',
         location: 'Online',
-        registrationOpen: true,
+        registrationOpen: false,
     },
     {
         tag: 'Conference',
@@ -258,6 +258,8 @@ function SubmissionTracker() {
 export default function Home() {
     const [activeStep, setActiveStep] = useState(null)
     const [showPopup, setShowPopup] = useState(false)
+    const [activeSlide, setActiveSlide] = useState(0)
+    const carouselRef = useRef(null)
     useReveal()
 
     useEffect(() => {
@@ -274,7 +276,52 @@ export default function Home() {
                         <button className="fdp-popup-close" onClick={() => setShowPopup(false)} aria-label="Close">
                             &times;
                         </button>
-                        <img src="/fdp-poster.jpg" alt="International FDP on Supply Chain Management" className="fdp-popup-image" />
+                        <div className="fdp-popup-carousel-container">
+                            <div 
+                                className="fdp-popup-carousel"
+                                ref={carouselRef}
+                                onScroll={(e) => {
+                                    const scrollLeft = e.target.scrollLeft;
+                                    const width = e.target.clientWidth;
+                                    const newIndex = Math.round(scrollLeft / width);
+                                    if (newIndex !== activeSlide) setActiveSlide(newIndex);
+                                }}
+                            >
+                                <div className="fdp-popup-slide">
+                                    <img src="/conference-poster-1.jpg" alt="Conference Details" />
+                                </div>
+                                <div className="fdp-popup-slide">
+                                    <img src="/conference-poster-2.jpg" alt="Conference Deadlines" />
+                                </div>
+                            </div>
+                            <div className="fdp-popup-indicators">
+                                <span className={`fdp-popup-indicator ${activeSlide === 0 ? 'active' : ''}`} />
+                                <span className={`fdp-popup-indicator ${activeSlide === 1 ? 'active' : ''}`} />
+                            </div>
+                            {activeSlide === 0 ? (
+                                <div 
+                                  className="fdp-swipe-hint right"
+                                  onClick={() => {
+                                      if(carouselRef.current) {
+                                          carouselRef.current.scrollBy({ left: carouselRef.current.clientWidth, behavior: 'smooth' });
+                                      }
+                                  }}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            ) : (
+                                <div 
+                                  className="fdp-swipe-hint left"
+                                  onClick={() => {
+                                      if(carouselRef.current) {
+                                          carouselRef.current.scrollBy({ left: -carouselRef.current.clientWidth, behavior: 'smooth' });
+                                      }
+                                  }}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                                </div>
+                            )}
+                        </div>
                         <div className="fdp-popup-footer">
                             <Link
                                 to="/author-services"
