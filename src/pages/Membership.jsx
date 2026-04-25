@@ -40,6 +40,36 @@ const initialState = {
     agree: false,
 }
 
+// ── Moved OUTSIDE the component so React doesn't recreate them on every render ──
+
+const Field = ({ label, name, type = 'text', required, children, placeholder, form, handle, errors }) => (
+    <div className={`mf-group${errors[name] ? ' mf-error' : ''}`}>
+        <label className="mf-label">{label}{required && <span className="mf-req">✶</span>}</label>
+        {children ? children :
+            <input
+                className="mf-input"
+                type={type}
+                name={name}
+                value={form[name]}
+                onChange={handle}
+                placeholder={placeholder || ''}
+            />
+        }
+        {errors[name] && <span className="mf-err-msg">{errors[name]}</span>}
+    </div>
+)
+
+const Select = ({ label, name, required, options, form, handle, errors }) => (
+    <div className={`mf-group${errors[name] ? ' mf-error' : ''}`}>
+        <label className="mf-label">{label}{required && <span className="mf-req">✶</span>}</label>
+        <select className="mf-input mf-select" name={name} value={form[name]} onChange={handle}>
+            <option value="">— Select —</option>
+            {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
+        </select>
+        {errors[name] && <span className="mf-err-msg">{errors[name]}</span>}
+    </div>
+)
+
 export default function Membership() {
     const [form, setForm] = useState(initialState)
     const [submitted, setSubmitted] = useState(false)
@@ -93,6 +123,9 @@ export default function Membership() {
         }
     }
 
+    // Shared props to pass down to Field / Select
+    const fp = { form, handle, errors }
+
     if (submitted) return (
         <div className="membership-page">
             <div className="membership-success">
@@ -103,34 +136,6 @@ export default function Membership() {
                     Register Another
                 </button>
             </div>
-        </div>
-    )
-
-    const Field = ({ label, name, type = 'text', required, children, placeholder }) => (
-        <div className={`mf-group${errors[name] ? ' mf-error' : ''}`}>
-            <label className="mf-label">{label}{required && <span className="mf-req">✶</span>}</label>
-            {children ? children :
-                <input
-                    className="mf-input"
-                    type={type}
-                    name={name}
-                    value={form[name]}
-                    onChange={handle}
-                    placeholder={placeholder || ''}
-                />
-            }
-            {errors[name] && <span className="mf-err-msg">{errors[name]}</span>}
-        </div>
-    )
-
-    const Select = ({ label, name, required, options }) => (
-        <div className={`mf-group${errors[name] ? ' mf-error' : ''}`}>
-            <label className="mf-label">{label}{required && <span className="mf-req">✶</span>}</label>
-            <select className="mf-input mf-select" name={name} value={form[name]} onChange={handle}>
-                <option value="">— Select —</option>
-                {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
-            </select>
-            {errors[name] && <span className="mf-err-msg">{errors[name]}</span>}
         </div>
     )
 
@@ -185,30 +190,30 @@ export default function Membership() {
                     <div className="mf-section">
                         <h3 className="mf-section-title">Personal Details</h3>
                         <div className="mf-grid mf-grid-3">
-                            <Select label="Title" name="title" required options={['Dr.', 'Prof.', 'Mr.', 'Mrs.', 'Ms.']} />
-                            <Field label="First Name" name="firstName" required placeholder="Enter first name" />
-                            <Field label="Last Name" name="lastName" required placeholder="Enter last name" />
+                            <Select {...fp} label="Title" name="title" required options={['Dr.', 'Prof.', 'Mr.', 'Mrs.', 'Ms.']} />
+                            <Field {...fp} label="First Name" name="firstName" required placeholder="Enter first name" />
+                            <Field {...fp} label="Last Name" name="lastName" required placeholder="Enter last name" />
                         </div>
                         <div className="mf-grid mf-grid-3">
-                            <Select label="Gender" name="gender" required options={['Male', 'Female', 'Other']} />
-                            <Field label="Date of Birth" name="dob" type="date" required />
-                            <Field label="Nationality" name="nationality" required placeholder="e.g. Indian" />
+                            <Select {...fp} label="Gender" name="gender" required options={['Male', 'Female', 'Other']} />
+                            <Field {...fp} label="Date of Birth" name="dob" type="date" required />
+                            <Field {...fp} label="Nationality" name="nationality" required placeholder="e.g. Indian" />
                         </div>
                         <div className="mf-grid mf-grid-2">
-                            <Field label="Email Address" name="email" type="email" required placeholder="you@example.com" />
-                            <Field label="Phone Number" name="phone" type="tel" required placeholder="+91 XXXXX XXXXX" />
+                            <Field {...fp} label="Email Address" name="email" type="email" required placeholder="you@example.com" />
+                            <Field {...fp} label="Phone Number" name="phone" type="tel" required placeholder="+91 XXXXX XXXXX" />
                         </div>
                         <div className="mf-grid mf-grid-2">
-                            <Field label="WhatsApp Number" name="whatsapp" type="tel" placeholder="+91 XXXXX XXXXX" />
-                            <Field label="Postal / ZIP Code" name="postalCode" required placeholder="Enter postal code" />
+                            <Field {...fp} label="WhatsApp Number" name="whatsapp" type="tel" placeholder="+91 XXXXX XXXXX" />
+                            <Field {...fp} label="Postal / ZIP Code" name="postalCode" required placeholder="Enter postal code" />
                         </div>
-                        <Field label="Residential Address" name="address" required placeholder="Street address">
+                        <Field {...fp} label="Residential Address" name="address" required placeholder="Street address">
                             <textarea className="mf-input mf-textarea" name="address" value={form.address} onChange={handle} placeholder="Street address, Apartment, Suite, etc." rows={2} />
                         </Field>
                         <div className="mf-grid mf-grid-3">
-                            <Field label="City" name="city" required placeholder="City" />
-                            <Field label="State / Province" name="state" required placeholder="State" />
-                            <Field label="Country" name="country" required placeholder="Country" />
+                            <Field {...fp} label="City" name="city" required placeholder="City" />
+                            <Field {...fp} label="State / Province" name="state" required placeholder="State" />
+                            <Field {...fp} label="Country" name="country" required placeholder="Country" />
                         </div>
                     </div>
 
@@ -216,14 +221,14 @@ export default function Membership() {
                     <div className="mf-section">
                         <h3 className="mf-section-title">Affiliation</h3>
                         <div className="mf-grid mf-grid-2">
-                            <Field label="Institution / Organisation Name" name="institution" required placeholder="Full name of institution" />
-                            <Field label="Department" name="department" placeholder="e.g. Computer Science" />
+                            <Field {...fp} label="Institution / Organisation Name" name="institution" required placeholder="Full name of institution" />
+                            <Field {...fp} label="Department" name="department" placeholder="e.g. Computer Science" />
                         </div>
                         <div className="mf-grid mf-grid-2">
-                            <Field label="Designation / Position" name="designation" required placeholder="e.g. Assistant Professor" />
-                            <Field label="Institution Website" name="institutionWebsite" placeholder="https://your-institution.edu" />
+                            <Field {...fp} label="Designation / Position" name="designation" required placeholder="e.g. Assistant Professor" />
+                            <Field {...fp} label="Institution Website" name="institutionWebsite" placeholder="https://your-institution.edu" />
                         </div>
-                        <Field label="Institution Address" name="institutionAddress" placeholder="Full address of your institution">
+                        <Field {...fp} label="Institution Address" name="institutionAddress" placeholder="Full address of your institution">
                             <textarea className="mf-input mf-textarea" name="institutionAddress" value={form.institutionAddress} onChange={handle} placeholder="Full address of your institution" rows={2} />
                         </Field>
                     </div>
@@ -232,17 +237,18 @@ export default function Membership() {
                     <div className="mf-section">
                         <h3 className="mf-section-title">Membership Details</h3>
                         <div className="mf-grid mf-grid-2">
-    
-                            <Select label="Membership Duration" name="duration" required
+                            <Select {...fp} label="Membership Type" name="membershipType" required
+                                options={[{ value: 'student', label: 'Student' }, { value: 'professional', label: 'Professional / Working Adult' }]} />
+                            <Select {...fp} label="Membership Duration" name="duration" required
                                 options={[{ value: '1year', label: '1 Year' }, { value: '2year', label: '2 Years' }]} />
                         </div>
                         <div className="mf-grid mf-grid-2">
-                            <Select label="Highest Qualification" name="highestQualification" required
+                            <Select {...fp} label="Highest Qualification" name="highestQualification" required
                                 options={['Undergraduate', 'Postgraduate', 'Ph.D.', 'Post-Doctoral', 'Other']} />
-                            <Select label="Years of Experience" name="experience"
+                            <Select {...fp} label="Years of Experience" name="experience"
                                 options={['Less than 1 year', '1–3 years', '3–5 years', '5–10 years', 'More than 10 years']} />
                         </div>
-                        <Field label="Area of Research / Specialisation" name="researchArea" required placeholder="e.g. Machine Learning, Management, Biochemistry…" />
+                        <Field {...fp} label="Area of Research / Specialisation" name="researchArea" required placeholder="e.g. Machine Learning, Management, Biochemistry…" />
                     </div>
 
                     {/* ─── Membership Certification ─── */}
@@ -263,9 +269,9 @@ export default function Membership() {
                             {/* <div className="mf-bank-row"><span>WhatsApp (queries)</span><strong>+91-7845059475</strong></div> */}
                         </div>
                         <div className="mf-grid mf-grid-2">
-                            <Select label="Payment Mode" name="paymentMode" required
+                            <Select {...fp} label="Payment Mode" name="paymentMode" required
                                 options={['Bank Transfer / NEFT / RTGS', 'UPI', 'International Wire Transfer', 'Other']} />
-                            <Field label="Transaction Reference / UTR Number" name="transactionRef" required placeholder="Enter transaction ID or UTR" />
+                            <Field {...fp} label="Transaction Reference / UTR Number" name="transactionRef" required placeholder="Enter transaction ID or UTR" />
                         </div>
                     </div>
 
