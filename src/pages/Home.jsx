@@ -60,11 +60,12 @@ const recentActivities = [
         tag: 'Conference',
         type: '',
         title: 'International Conference',
-        desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
-        date: 'TBA',
-        location: 'TBA',
+        desc: 'IVCGSMT 2026 – Explore global sustainable management & technologies with Dwijendra University, Bali.',
+        icon: '🌐',
+        date: '3rd June, 2026',
+        location: 'Virtual',
         registrationOpen: true,
+        link: '/ivcgsmt',
     },      
     {
         tag: 'Conference',
@@ -502,7 +503,7 @@ export default function Home() {
                                     </p>
                                     <p style={{ fontSize: '0.88rem' }}>{act.desc}</p>
                                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                        <Link to="/development/fdp" className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
+                                        <Link to={act.link || '/development/fdp'} className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
                                             View Details →
                                         </Link>
                                         {act.registrationOpen && (
