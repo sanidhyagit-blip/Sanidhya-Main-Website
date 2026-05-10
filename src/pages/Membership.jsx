@@ -264,7 +264,7 @@ export default function Membership() {
                             <div className="mf-bank-row"><span>Bank Name</span><strong>Sanidhya Inspiring Academic Excellence</strong></div>
                             <div className="mf-bank-row"><span>Account Number</span><strong>60571391574</strong></div>
                             <div className="mf-bank-row"><span>Branch</span><strong>Ramraoadik College Of Engineering</strong></div>
-                            <div className="mf-bank-row"><span>IFSC Code</span><strong>MAHB00001292</strong></div>
+                            <div className="mf-bank-row"><span>IFSC Code</span><strong>MAHB0001292</strong></div>
                             {/* <div className="mf-bank-row"><span>Swift Code</span><strong>HDFCINBB</strong></div> */}
                             {/* <div className="mf-bank-row"><span>WhatsApp (queries)</span><strong>+91-7845059475</strong></div> */}
                         </div>
