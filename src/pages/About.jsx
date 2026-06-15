@@ -4,7 +4,7 @@ import useReveal from '../hooks/useReveal'
 const team = [
     { name: 'Dr. Pushpendu Rakshit', role: 'Founder & CEO', icon: '👩‍🎓', desc: 'Academician, Researcher, Author, Publisher, International copyright and patent holder' },
     { name: 'Dr. Vinit Joshi ', role: 'Chief Editor', icon: '👨‍🏫', desc: 'Academician, Researcher, Author, Publisher' },
-    { name: 'Dr. Mukund Madhav Tripathi', role: 'Chief Editor', icon: '👩‍🔬', desc: 'Academician, Researcher, Author, Publisher' },
+
     { name: 'Mrs. Vardha Joshi', role: 'Sub-Editor', icon: '⚖️', desc: 'Academician, Researcher & Publisher' },
     { name: 'Mr. Vedant Naikwadi', role: 'Tech-Support', icon: '🧑‍💻', desc: 'Research Scholar and Software Developer' },
 ]

@@ -15,6 +15,9 @@ import About from './pages/About'
 import Membership from './pages/Membership'
 import Admin from './pages/Admin'
 import IVCGSMT from './pages/IVCGSMT'
+import Members from './pages/Members'
+import OlderEvents from './pages/OlderEvents'
+import Gallery from './pages/Gallery'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -64,6 +67,9 @@ export default function App() {
           <Route path="/process" element={<ProcessDetail />} />
           <Route path="/membership" element={<Membership />} />
           <Route path="/ivcgsmt" element={<IVCGSMT />} />
+          <Route path="/members" element={<Members />} />
+          <Route path="/past-events" element={<OlderEvents />} />
+          <Route path="/gallery" element={<Gallery />} />
         </Route>
       </Routes>
     </>

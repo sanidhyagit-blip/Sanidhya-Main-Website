@@ -42,6 +42,9 @@ export default function Footer() {
                             <li><Link to="/faq">FAQ</Link></li>
                             <li><Link to="/published">Published Works</Link></li>
                             <li><Link to="/process">Publication Process</Link></li>
+                            <li><Link to="/members">Members Directory</Link></li>
+                            <li><Link to="/gallery">Gallery</Link></li>
+                            <li><Link to="/past-events">Past Events</Link></li>
                         </ul>
                     </div>
 

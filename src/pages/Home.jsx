@@ -341,8 +341,8 @@ export default function Home() {
                 <div className="marquee-strip">
                     <div className="marquee-track">
                         <span className="marquee-content">
-                            🔔 One Day International Virtual FDP &nbsp;|&nbsp; Topic: Advancements in the Supply Chain Management &nbsp;|&nbsp; REGISTER NOW! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            🔔 One Day International Virtual FDP &nbsp;|&nbsp; Topic: Advancements in the Supply Chain Management &nbsp;|&nbsp; REGISTER NOW! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            🔔 More conferences and events coming up. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            🔔 More conferences and events coming up. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span>
                     </div>
                 </div>

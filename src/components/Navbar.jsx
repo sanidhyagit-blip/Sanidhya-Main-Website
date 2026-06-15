@@ -42,6 +42,9 @@ const navItems = [
     { label: 'FAQs', to: '/faq' },
     { label: 'Published', to: '/published' },
     { label: 'Membership', to: '/membership' },
+    { label: 'Members', to: '/members' },
+    { label: 'Gallery', to: '/gallery' },
+    { label: 'Past Events', to: '/past-events' },
     { label: 'About Us', to: '/about' },
 ]
 

@@ -109,6 +109,18 @@ app.get('/api/memberships', async (req, res) => {
     }
 })
 
+// Get approved members only (public – Members Directory)
+// Sorted by createdAt (form submission date) ascending for sequential numbering
+app.get('/api/memberships/approved', async (req, res) => {
+    try {
+        const applications = await MembershipApplication.find({ status: 'approved' })
+            .sort({ createdAt: 1 })
+        res.json({ success: true, count: applications.length, applications })
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Failed to fetch approved members' })
+    }
+})
+
 // Approve or reject a membership application (admin)
 app.patch('/api/memberships/:id', async (req, res) => {
     const { status } = req.body
