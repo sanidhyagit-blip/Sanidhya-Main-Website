@@ -34,8 +34,9 @@ const galleryAlbums = [
 ]
 
 function Lightbox({ image, onClose, onPrev, onNext, hasPrev, hasNext }) {
-    // Keyboard navigation
+    // Keyboard navigation + scroll lock (only when lightbox is open)
     useEffect(() => {
+        if (!image) return
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') onClose()
             if (e.key === 'ArrowLeft' && hasPrev) onPrev()
@@ -47,7 +48,7 @@ function Lightbox({ image, onClose, onPrev, onNext, hasPrev, hasNext }) {
             document.removeEventListener('keydown', handleKeyDown)
             document.body.style.overflow = ''
         }
-    }, [onClose, onPrev, onNext, hasPrev, hasNext])
+    }, [image, onClose, onPrev, onNext, hasPrev, hasNext])
 
     if (!image) return null
 

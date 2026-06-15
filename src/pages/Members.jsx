@@ -47,6 +47,10 @@ export default function Members() {
         const fetchMembers = async () => {
             try {
                 const res = await fetch(`${API_BASE}/api/memberships/approved`)
+                if (!res.ok) {
+                    setError('Server returned an error. Please try again later.')
+                    return
+                }
                 const data = await res.json()
                 if (data.success) {
                     setMembers(data.applications || [])
@@ -54,7 +58,7 @@ export default function Members() {
                     setError('Failed to load member data.')
                 }
             } catch {
-                setError('Unable to connect to server. Please try again later.')
+                setError('Unable to connect to server. Make sure the backend server is running.')
             } finally {
                 setLoading(false)
             }

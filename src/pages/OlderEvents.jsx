@@ -26,16 +26,6 @@ const pastEvents = [
         link: '/development/fdp',
         banner: '/fdp-poster.jpg',
     },
-    {
-        id: 'national-conf-placeholder',
-        title: 'National Conference on Research & Innovation',
-        description: 'A national-level conference bringing together researchers from across the country to present and discuss breakthrough innovations in science, technology, and management.',
-        date: 'TBA',
-        location: 'TBA',
-        tag: 'Conference',
-        link: '/research/national-conference',
-        banner: null,
-    },
 ]
 
 function EventBannerPlaceholder({ tag }) {

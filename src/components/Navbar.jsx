@@ -26,25 +26,30 @@ const navItems = [
         ],
     },
     {
-        label: 'Development Programs',
+        label: 'Programs',
         children: [
             { label: 'Faculty Development Program', to: '/development/fdp' },
             { label: 'Management Development Program', to: '/development/mdp' },
-        ],
-    },
-    {
-        label: 'IPR',
-        children: [
-            { label: 'Patents', to: '/ipr/patents' },
+            { label: 'Patents & IPR', to: '/ipr/patents' },
         ],
     },
     { label: 'Author Services', to: '/author-services' },
-    { label: 'FAQs', to: '/faq' },
-    { label: 'Published', to: '/published' },
-    { label: 'Membership', to: '/membership' },
-    { label: 'Members', to: '/members' },
-    { label: 'Gallery', to: '/gallery' },
-    { label: 'Past Events', to: '/past-events' },
+    {
+        label: 'Membership',
+        children: [
+            { label: 'Apply for Membership', to: '/membership' },
+            { label: 'Members Directory', to: '/members' },
+        ],
+    },
+    {
+        label: 'Explore',
+        children: [
+            { label: 'Gallery', to: '/gallery' },
+            { label: 'Past Events', to: '/past-events' },
+            { label: 'Published Works', to: '/published' },
+            { label: 'FAQs', to: '/faq' },
+        ],
+    },
     { label: 'About Us', to: '/about' },
 ]
 
