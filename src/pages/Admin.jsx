@@ -235,13 +235,9 @@ function GalleryTab() {
     const [editingAlbum, setEditingAlbum] = useState(null) // {_id, name, description}
     const [albumSaving, setAlbumSaving] = useState(false)
 
-    // Upload form state
+    // Upload form state — multi-file queue
     const [uploadAlbumId, setUploadAlbumId] = useState('')
-    const [uploadFile, setUploadFile] = useState(null)
-    const [uploadPreview, setUploadPreview] = useState(null)
-    const [uploadName, setUploadName] = useState('')
-    const [uploadCaption, setUploadCaption] = useState('')
-    const [uploadAlt, setUploadAlt] = useState('')
+    const [uploadQueue, setUploadQueue] = useState([]) // [{id, file, preview, name, caption, alt, status:'pending'|'uploading'|'done'|'error', error}]
     const [uploading, setUploading] = useState(false)
     const [uploadError, setUploadError] = useState('')
     const [uploadSuccess, setUploadSuccess] = useState('')
@@ -345,53 +341,76 @@ function GalleryTab() {
         } finally { setDeleting(false) }
     }
 
-    // ── File select
+    // ── Add files to queue
     const handleFileChange = (e) => {
-        const file = e.target.files[0]
-        if (!file) return
-        if (!file.type.startsWith('image/')) {
-            setUploadError('Only image files are allowed.')
-            return
+        const files = Array.from(e.target.files)
+        if (!files.length) return
+        const invalid = files.filter(f => !f.type.startsWith('image/'))
+        if (invalid.length) {
+            setUploadError(`${invalid.length} file(s) are not images and were skipped.`)
+        } else {
+            setUploadError('')
         }
-        setUploadFile(file)
-        setUploadError('')
-        const reader = new FileReader()
-        reader.onload = ev => setUploadPreview(ev.target.result)
-        reader.readAsDataURL(file)
-        // Auto-fill name from filename
-        if (!uploadName) {
-            setUploadName(file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '))
-        }
+        const newItems = files
+            .filter(f => f.type.startsWith('image/'))
+            .map(file => ({
+                id: `${Date.now()}-${Math.random()}`,
+                file,
+                preview: URL.createObjectURL(file),
+                name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+                caption: '',
+                alt: '',
+                status: 'pending',
+                error: '',
+            }))
+        setUploadQueue(prev => [...prev, ...newItems])
+        if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
-    // ── Upload Photo
+    const updateQueueItem = (id, updates) =>
+        setUploadQueue(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item))
+
+    const removeQueueItem = (id) =>
+        setUploadQueue(prev => prev.filter(item => item.id !== id))
+
+    // ── Upload all queued photos sequentially
     const handleUpload = async (e) => {
         e.preventDefault()
-        if (!uploadFile) { setUploadError('Please select an image.'); return }
+        if (!uploadQueue.length) { setUploadError('Please select at least one image.'); return }
         if (!uploadAlbumId) { setUploadError('Please select an album.'); return }
+        const pending = uploadQueue.filter(item => item.status === 'pending')
+        if (!pending.length) { setUploadError('No pending photos to upload.'); return }
         setUploading(true); setUploadError(''); setUploadSuccess('')
-        try {
-            const formData = new FormData()
-            formData.append('image', uploadFile)
-            formData.append('albumId', uploadAlbumId)
-            formData.append('name', uploadName)
-            formData.append('caption', uploadCaption)
-            formData.append('alt', uploadAlt)
-            const res = await fetch(`${API_BASE}/api/gallery/photos`, { method: 'POST', body: formData })
-            const data = await res.json()
-            if (data.success) {
-                setPhotos(prev => [data.photo, ...prev])
-                setUploadFile(null); setUploadPreview(null)
-                setUploadName(''); setUploadCaption(''); setUploadAlt('')
-                if (fileInputRef.current) fileInputRef.current.value = ''
-                setUploadSuccess('Photo uploaded successfully!')
-                setTimeout(() => setUploadSuccess(''), 4000)
-            } else {
-                setUploadError(data.error || 'Upload failed. Check your Cloudinary credentials.')
+        let successCount = 0
+        for (const item of pending) {
+            updateQueueItem(item.id, { status: 'uploading' })
+            try {
+                const formData = new FormData()
+                formData.append('image', item.file)
+                formData.append('albumId', uploadAlbumId)
+                formData.append('name', item.name)
+                formData.append('caption', item.caption)
+                formData.append('alt', item.alt)
+                const res = await fetch(`${API_BASE}/api/gallery/photos`, { method: 'POST', body: formData })
+                const data = await res.json()
+                if (data.success) {
+                    setPhotos(prev => [data.photo, ...prev])
+                    updateQueueItem(item.id, { status: 'done' })
+                    successCount++
+                } else {
+                    updateQueueItem(item.id, { status: 'error', error: data.error || 'Upload failed' })
+                }
+            } catch {
+                updateQueueItem(item.id, { status: 'error', error: 'Network error' })
             }
-        } catch {
-            setUploadError('Network error. Please try again.')
-        } finally { setUploading(false) }
+        }
+        setUploading(false)
+        if (successCount > 0) {
+            setUploadSuccess(`${successCount} photo${successCount !== 1 ? 's' : ''} uploaded successfully!`)
+            setTimeout(() => setUploadSuccess(''), 5000)
+            // Remove done items after a short delay
+            setTimeout(() => setUploadQueue(prev => prev.filter(i => i.status !== 'done')), 2000)
+        }
     }
 
     // ── Save Photo Edit
@@ -656,132 +675,194 @@ function GalleryTab() {
             </div>
 
             {/* ═══════════════════════════════════════════ */}
-            {/* Section 2: Upload Photo                     */}
+            {/* Section 2: Upload Photos                    */}
             {/* ═══════════════════════════════════════════ */}
             <div style={{ marginBottom: 32 }}>
                 <h2 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 800, color: '#1e3a5f' }}>
-                    📤 Upload Photo
+                    📤 Upload Photos
                 </h2>
                 <form onSubmit={handleUpload} style={{ ...cardStyle, borderLeft: '4px solid #059669' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 20, alignItems: 'start' }}>
-                        {/* Image Preview */}
-                        <div>
-                            <div
-                                onClick={() => fileInputRef.current?.click()}
-                                style={{
-                                    width: '100%', aspectRatio: '4/3', borderRadius: 8,
-                                    border: '2px dashed #d1d5db', cursor: 'pointer',
-                                    overflow: 'hidden', background: '#f9fafb',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    flexDirection: 'column', gap: 6, color: '#9ca3af', fontSize: '0.8rem',
-                                    transition: 'border-color 0.2s',
-                                    ...(uploadPreview ? {} : {}),
-                                }}
-                                id="admin-upload-drop-zone"
+
+                    {/* Album selector + file picker row */}
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 16 }}>
+                        <div style={{ flex: '1 1 220px' }}>
+                            <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>Album *</label>
+                            <select
+                                style={{ ...inputStyle, background: '#fff', cursor: 'pointer' }}
+                                value={uploadAlbumId}
+                                onChange={e => setUploadAlbumId(e.target.value)}
+                                id="admin-upload-album-select"
                             >
-                                {uploadPreview ? (
-                                    <img src={uploadPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : (
-                                    <>
-                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-                                        </svg>
-                                        <span>Click to choose<br />image</span>
-                                    </>
+                                <option value="">— Select Album —</option>
+                                {albums.map(a => (
+                                    <option key={a._id} value={a._id}>{a.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div style={{ flex: '1 1 220px' }}>
+                            <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>Images</label>
+                            <label
+                                htmlFor="admin-photo-file-input"
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 8,
+                                    border: '2px dashed #d1d5db', borderRadius: 8,
+                                    padding: '8px 14px', cursor: 'pointer', background: '#f9fafb',
+                                    color: '#374151', fontSize: '0.85rem', fontWeight: 600,
+                                    transition: 'border-color 0.2s',
+                                }}
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+                                </svg>
+                                Click to add images
+                                {uploadQueue.length > 0 && (
+                                    <span style={{ background: '#059669', color: '#fff', borderRadius: 20, padding: '1px 8px', fontSize: '0.75rem', marginLeft: 4 }}>
+                                        {uploadQueue.length} queued
+                                    </span>
                                 )}
-                            </div>
+                            </label>
                             <input
                                 ref={fileInputRef}
+                                id="admin-photo-file-input"
                                 type="file"
                                 accept="image/*"
+                                multiple
                                 onChange={handleFileChange}
                                 style={{ display: 'none' }}
-                                id="admin-photo-file-input"
                             />
-                            {uploadPreview && (
-                                <button
-                                    type="button"
-                                    onClick={() => { setUploadFile(null); setUploadPreview(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
-                                    style={{ ...btnOutlineStyle, width: '100%', marginTop: 6, fontSize: '0.78rem', padding: '5px 0' }}
-                                >
-                                    ✕ Remove
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Form Fields */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                            <div>
-                                <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>Album *</label>
-                                <select
-                                    style={{ ...inputStyle, background: '#fff', cursor: 'pointer' }}
-                                    value={uploadAlbumId}
-                                    onChange={e => setUploadAlbumId(e.target.value)}
-                                    id="admin-upload-album-select"
-                                >
-                                    <option value="">— Select Album —</option>
-                                    {albums.map(a => (
-                                        <option key={a._id} value={a._id}>{a.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>Photo Name *</label>
-                                <input
-                                    style={inputStyle}
-                                    value={uploadName}
-                                    onChange={e => setUploadName(e.target.value)}
-                                    placeholder="Display name for this photo"
-                                    id="admin-upload-name-input"
-                                />
-                            </div>
-                            <div>
-                                <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>Caption</label>
-                                <input
-                                    style={inputStyle}
-                                    value={uploadCaption}
-                                    onChange={e => setUploadCaption(e.target.value)}
-                                    placeholder="Short description shown in the gallery"
-                                    id="admin-upload-caption-input"
-                                />
-                            </div>
-                            <div>
-                                <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>Alt Text</label>
-                                <input
-                                    style={inputStyle}
-                                    value={uploadAlt}
-                                    onChange={e => setUploadAlt(e.target.value)}
-                                    placeholder="Screen reader description (accessibility)"
-                                    id="admin-upload-alt-input"
-                                />
-                            </div>
-                            {uploadError && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{uploadError}</p>}
-                            {uploadSuccess && <p style={{ color: '#059669', fontSize: '0.82rem', margin: 0 }}>✓ {uploadSuccess}</p>}
-                            <div>
-                                <button
-                                    type="submit"
-                                    style={{
-                                        ...btnStyle('#059669'),
-                                        display: 'flex', alignItems: 'center', gap: 8,
-                                        opacity: uploading ? 0.7 : 1,
-                                    }}
-                                    disabled={uploading}
-                                    id="admin-upload-submit-btn"
-                                >
-                                    {uploading ? (
-                                        <>
-                                            <span style={{
-                                                width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)',
-                                                borderTopColor: '#fff', borderRadius: '50%',
-                                                animation: 'spin 0.7s linear infinite', display: 'inline-block',
-                                            }} />
-                                            Uploading…
-                                        </>
-                                    ) : '⬆ Upload Photo'}
-                                </button>
-                            </div>
                         </div>
                     </div>
+
+                    {/* Queue table */}
+                    {uploadQueue.length > 0 && (
+                        <div style={{ marginBottom: 16 }}>
+                            <div style={{
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                marginBottom: 8,
+                            }}>
+                                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#374151' }}>
+                                    {uploadQueue.length} image{uploadQueue.length !== 1 ? 's' : ''} queued
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setUploadQueue(prev => prev.filter(i => i.status !== 'pending'))}
+                                    style={{ ...btnOutlineStyle, padding: '4px 10px', fontSize: '0.75rem' }}
+                                >
+                                    Clear Pending
+                                </button>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {uploadQueue.map((item) => (
+                                    <div key={item.id} style={{
+                                        display: 'flex', gap: 12, alignItems: 'flex-start',
+                                        background: item.status === 'done' ? '#f0fdf4'
+                                            : item.status === 'error' ? '#fef2f2'
+                                            : item.status === 'uploading' ? '#eff6ff'
+                                            : '#f9fafb',
+                                        border: `1.5px solid ${
+                                            item.status === 'done' ? '#86efac'
+                                            : item.status === 'error' ? '#fca5a5'
+                                            : item.status === 'uploading' ? '#93c5fd'
+                                            : '#e5e7eb'
+                                        }`,
+                                        borderRadius: 10, padding: '10px 12px',
+                                    }}>
+                                        {/* Thumbnail */}
+                                        <img
+                                            src={item.preview}
+                                            alt="preview"
+                                            style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
+                                        />
+                                        {/* Fields */}
+                                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, minWidth: 0 }}>
+                                            <div>
+                                                <label style={{ fontSize: '0.73rem', fontWeight: 600, display: 'block', marginBottom: 2, color: '#6b7280' }}>Name *</label>
+                                                <input
+                                                    style={{ ...inputStyle, padding: '5px 8px', fontSize: '0.82rem' }}
+                                                    value={item.name}
+                                                    onChange={e => updateQueueItem(item.id, { name: e.target.value })}
+                                                    disabled={item.status !== 'pending'}
+                                                    placeholder="Photo name"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '0.73rem', fontWeight: 600, display: 'block', marginBottom: 2, color: '#6b7280' }}>Caption</label>
+                                                <input
+                                                    style={{ ...inputStyle, padding: '5px 8px', fontSize: '0.82rem' }}
+                                                    value={item.caption}
+                                                    onChange={e => updateQueueItem(item.id, { caption: e.target.value })}
+                                                    disabled={item.status !== 'pending'}
+                                                    placeholder="Caption"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '0.73rem', fontWeight: 600, display: 'block', marginBottom: 2, color: '#6b7280' }}>Alt Text</label>
+                                                <input
+                                                    style={{ ...inputStyle, padding: '5px 8px', fontSize: '0.82rem' }}
+                                                    value={item.alt}
+                                                    onChange={e => updateQueueItem(item.id, { alt: e.target.value })}
+                                                    disabled={item.status !== 'pending'}
+                                                    placeholder="Alt text"
+                                                />
+                                            </div>
+                                        </div>
+                                        {/* Status / remove */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, flexShrink: 0, minWidth: 60 }}>
+                                            {item.status === 'pending' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeQueueItem(item.id)}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', fontSize: '1.1rem', padding: 4 }}
+                                                    title="Remove"
+                                                >✕</button>
+                                            )}
+                                            {item.status === 'uploading' && (
+                                                <span style={{
+                                                    width: 18, height: 18,
+                                                    border: '2.5px solid #bfdbfe',
+                                                    borderTopColor: '#2563eb',
+                                                    borderRadius: '50%',
+                                                    animation: 'spin 0.7s linear infinite',
+                                                    display: 'inline-block',
+                                                }} />
+                                            )}
+                                            {item.status === 'done' && (
+                                                <span style={{ color: '#16a34a', fontSize: '1.2rem' }}>✓</span>
+                                            )}
+                                            {item.status === 'error' && (
+                                                <span title={item.error} style={{ color: '#dc2626', fontSize: '1.1rem', cursor: 'help' }}>✗</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {uploadError && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: '0 0 10px' }}>{uploadError}</p>}
+                    {uploadSuccess && <p style={{ color: '#059669', fontSize: '0.82rem', margin: '0 0 10px' }}>✓ {uploadSuccess}</p>}
+
+                    <button
+                        type="submit"
+                        style={{
+                            ...btnStyle('#059669'),
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            opacity: uploading ? 0.7 : 1,
+                        }}
+                        disabled={uploading || uploadQueue.filter(i => i.status === 'pending').length === 0}
+                        id="admin-upload-submit-btn"
+                    >
+                        {uploading ? (
+                            <>
+                                <span style={{
+                                    width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)',
+                                    borderTopColor: '#fff', borderRadius: '50%',
+                                    animation: 'spin 0.7s linear infinite', display: 'inline-block',
+                                }} />
+                                Uploading {uploadQueue.filter(i => i.status === 'done').length + 1} of {uploadQueue.filter(i => i.status !== 'pending').length + uploadQueue.filter(i => i.status === 'pending').length}…
+                            </>
+                        ) : `⬆ Upload ${uploadQueue.filter(i => i.status === 'pending').length || ''} Photo${uploadQueue.filter(i => i.status === 'pending').length !== 1 ? 's' : ''}`}
+                    </button>
                 </form>
             </div>
 
