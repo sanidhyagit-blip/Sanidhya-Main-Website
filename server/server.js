@@ -64,7 +64,21 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Health check
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString(), db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' })
+    const cloudinaryConfigured =
+        !!process.env.CLOUDINARY_CLOUD_NAME &&
+        !!process.env.CLOUDINARY_API_KEY &&
+        !!process.env.CLOUDINARY_API_SECRET
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        cloudinary: {
+            configured: cloudinaryConfigured,
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? '✓ set' : '✗ missing',
+            api_key: process.env.CLOUDINARY_API_KEY ? '✓ set' : '✗ missing',
+            api_secret: process.env.CLOUDINARY_API_SECRET ? '✓ set' : '✗ missing',
+        },
+    })
 })
 
 // ── Author Services Inquiry ──────────────────────────
