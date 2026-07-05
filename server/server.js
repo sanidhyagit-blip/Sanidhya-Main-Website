@@ -2,10 +2,32 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
+import multer from 'multer'
+import { v2 as cloudinary } from 'cloudinary'
 import AuthorInquiry from './models/AuthorInquiry.js'
 import MembershipApplication from './models/MembershipApplication.js'
+import GalleryAlbum from './models/GalleryAlbum.js'
+import GalleryPhoto from './models/GalleryPhoto.js'
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'sanidhya-admin-2026'
+
+// ── Cloudinary Configuration ─────────────────────────
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
+// Multer — store uploads in memory (then stream to Cloudinary)
+const storage = multer.memoryStorage()
+const upload = multer({
+    storage,
+    limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true)
+        else cb(new Error('Only image files are allowed'), false)
+    },
+})
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -13,6 +35,18 @@ const PORT = process.env.PORT || 5000
 // Middleware
 app.use(cors())
 app.use(express.json())
+
+// Helper: generate a slug from a name string
+function slugify(name) {
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        || `album-${Date.now()}`
+}
 
 // ==========================================
 // Connect to MongoDB Atlas
@@ -166,6 +200,161 @@ app.post('/api/admin/login', (req, res) => {
         res.json({ success: true })
     } else {
         res.status(401).json({ success: false, error: 'Incorrect password' })
+    }
+})
+
+// ── Gallery Albums ───────────────────────────────────
+
+// GET all albums
+app.get('/api/gallery/albums', async (req, res) => {
+    try {
+        const albums = await GalleryAlbum.find().sort({ order: 1, createdAt: 1 })
+        res.json({ success: true, albums })
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Failed to fetch albums' })
+    }
+})
+
+// POST create album
+app.post('/api/gallery/albums', async (req, res) => {
+    const { name, description } = req.body
+    if (!name?.trim()) return res.status(400).json({ success: false, error: 'Album name is required' })
+    try {
+        let slug = slugify(name)
+        // Ensure uniqueness
+        const existing = await GalleryAlbum.findOne({ slug })
+        if (existing) slug = `${slug}-${Date.now()}`
+        const album = await GalleryAlbum.create({ name: name.trim(), slug, description: description?.trim() || '' })
+        res.status(201).json({ success: true, album })
+    } catch (err) {
+        console.error('Error creating album:', err)
+        res.status(500).json({ success: false, error: 'Failed to create album' })
+    }
+})
+
+// PATCH update album (name / description)
+app.patch('/api/gallery/albums/:id', async (req, res) => {
+    const { name, description } = req.body
+    const updates = {}
+    if (name?.trim()) {
+        updates.name = name.trim()
+        updates.slug = slugify(name)
+    }
+    if (description !== undefined) updates.description = description.trim()
+    try {
+        const album = await GalleryAlbum.findByIdAndUpdate(req.params.id, updates, { new: true })
+        if (!album) return res.status(404).json({ success: false, error: 'Album not found' })
+        res.json({ success: true, album })
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Failed to update album' })
+    }
+})
+
+// DELETE album — also deletes all photos from Cloudinary + MongoDB
+app.delete('/api/gallery/albums/:id', async (req, res) => {
+    try {
+        const album = await GalleryAlbum.findById(req.params.id)
+        if (!album) return res.status(404).json({ success: false, error: 'Album not found' })
+
+        const photos = await GalleryPhoto.find({ albumId: req.params.id })
+        if (photos.length > 0) {
+            const publicIds = photos.map(p => p.publicId).filter(Boolean)
+            if (publicIds.length > 0) {
+                await cloudinary.api.delete_resources(publicIds)
+            }
+            await GalleryPhoto.deleteMany({ albumId: req.params.id })
+        }
+
+        await GalleryAlbum.findByIdAndDelete(req.params.id)
+        res.json({ success: true, message: `Album and ${photos.length} photo(s) deleted` })
+    } catch (err) {
+        console.error('Error deleting album:', err)
+        res.status(500).json({ success: false, error: 'Failed to delete album' })
+    }
+})
+
+// ── Gallery Photos ────────────────────────────────────
+
+// GET all photos (optionally filter by albumId)
+app.get('/api/gallery/photos', async (req, res) => {
+    try {
+        const filter = req.query.albumId ? { albumId: req.query.albumId } : {}
+        const photos = await GalleryPhoto.find(filter).populate('albumId', 'name slug').sort({ createdAt: -1 })
+        res.json({ success: true, photos })
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Failed to fetch photos' })
+    }
+})
+
+// POST upload photo → Cloudinary → MongoDB
+app.post('/api/gallery/photos', upload.single('image'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ success: false, error: 'Image file is required' })
+    const { name, alt, caption, albumId } = req.body
+    if (!albumId) return res.status(400).json({ success: false, error: 'Album is required' })
+
+    try {
+        const album = await GalleryAlbum.findById(albumId)
+        if (!album) return res.status(404).json({ success: false, error: 'Album not found' })
+
+        // Stream buffer to Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { folder: `sanidhya/gallery/${album.slug}`, resource_type: 'image' },
+                (err, result) => {
+                    if (err) reject(err)
+                    else resolve(result)
+                }
+            )
+            stream.end(req.file.buffer)
+        })
+
+        const photo = await GalleryPhoto.create({
+            name: name?.trim() || req.file.originalname,
+            src: uploadResult.secure_url,
+            alt: alt?.trim() || name?.trim() || '',
+            caption: caption?.trim() || '',
+            albumId,
+            publicId: uploadResult.public_id,
+        })
+
+        const populated = await photo.populate('albumId', 'name slug')
+        res.status(201).json({ success: true, photo: populated })
+    } catch (err) {
+        console.error('Error uploading photo:', err)
+        res.status(500).json({ success: false, error: err.message || 'Failed to upload photo' })
+    }
+})
+
+// PATCH update photo metadata (name / alt / caption)
+app.patch('/api/gallery/photos/:id', async (req, res) => {
+    const { name, alt, caption } = req.body
+    const updates = {}
+    if (name !== undefined) updates.name = name.trim()
+    if (alt !== undefined) updates.alt = alt.trim()
+    if (caption !== undefined) updates.caption = caption.trim()
+    try {
+        const photo = await GalleryPhoto.findByIdAndUpdate(req.params.id, updates, { new: true }).populate('albumId', 'name slug')
+        if (!photo) return res.status(404).json({ success: false, error: 'Photo not found' })
+        res.json({ success: true, photo })
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Failed to update photo' })
+    }
+})
+
+// DELETE photo from Cloudinary + MongoDB
+app.delete('/api/gallery/photos/:id', async (req, res) => {
+    try {
+        const photo = await GalleryPhoto.findById(req.params.id)
+        if (!photo) return res.status(404).json({ success: false, error: 'Photo not found' })
+
+        if (photo.publicId) {
+            await cloudinary.uploader.destroy(photo.publicId)
+        }
+        await GalleryPhoto.findByIdAndDelete(req.params.id)
+        res.json({ success: true, message: 'Photo deleted' })
+    } catch (err) {
+        console.error('Error deleting photo:', err)
+        res.status(500).json({ success: false, error: 'Failed to delete photo' })
     }
 })
 

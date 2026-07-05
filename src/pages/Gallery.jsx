@@ -1,40 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
+import API_BASE from '../api'
 
-/**
- * Gallery data — organized into albums/categories.
- * Each album has a name and array of images.
- * Images will be replaced with real photos later; currently uses professional placeholders.
- */
-const galleryAlbums = [
-    {
-        id: 'ivcgsmt-2026',
-        name: 'IVCGSMT 2026 Conference',
-        description: 'International Virtual Conference on Global Sustainable Management & Technologies',
-        images: [
-            { id: 1, src: '/conference-poster-1.jpg', alt: 'IVCGSMT 2026 Conference Details', caption: 'Conference Poster – Details' },
-            { id: 2, src: '/conference-poster-2.jpg', alt: 'IVCGSMT 2026 Conference Deadlines', caption: 'Conference Poster – Deadlines' },
-        ],
-    },
-    {
-        id: 'fdp-2026',
-        name: 'Faculty Development Program',
-        description: 'One Day International Virtual FDP on Supply Chain Management',
-        images: [
-            { id: 3, src: '/fdp-poster.jpg', alt: 'FDP Poster', caption: 'FDP Event Poster' },
-        ],
-    },
-    {
-        id: 'general',
-        name: 'General Gallery',
-        description: 'Photos and media from various events and activities',
-        images: [],
-    },
-]
-
+// ── Lightbox ──────────────────────────────────────────
 function Lightbox({ image, onClose, onPrev, onNext, hasPrev, hasNext }) {
-    // Keyboard navigation + scroll lock (only when lightbox is open)
     useEffect(() => {
         if (!image) return
         const handleKeyDown = (e) => {
@@ -74,43 +44,84 @@ function Lightbox({ image, onClose, onPrev, onNext, hasPrev, hasNext }) {
                         </svg>
                     </button>
                 )}
-                <img src={image.src} alt={image.alt} className="lightbox-image" />
-                {image.caption && (
-                    <div className="lightbox-caption">{image.caption}</div>
+                <img src={image.src} alt={image.alt || image.name} className="lightbox-image" />
+                {(image.name || image.caption) && (
+                    <div className="lightbox-caption">
+                        {image.name && <strong style={{ display: 'block' }}>{image.name}</strong>}
+                        {image.caption && <span>{image.caption}</span>}
+                    </div>
                 )}
             </div>
         </div>
     )
 }
 
+// ── Gallery Skeleton ──────────────────────────────────
+function GallerySkeleton() {
+    return (
+        <div className="gallery-grid" style={{ opacity: 0.5 }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="gallery-item gallery-placeholder" style={{ animation: 'pulse 1.5s ease-in-out infinite' }}>
+                    <div className="gallery-placeholder-inner">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <span>Loading…</span>
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+// ── Main Gallery Page ─────────────────────────────────
 export default function Gallery() {
     const [activeAlbum, setActiveAlbum] = useState('all')
     const [lightboxImage, setLightboxImage] = useState(null)
-    const [allImages, setAllImages] = useState([])
+    const [albums, setAlbums] = useState([])
+    const [photos, setPhotos] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
     useReveal()
 
-    // Flatten all images across albums for "All" filter
     useEffect(() => {
-        const imgs = galleryAlbums.flatMap(album =>
-            album.images.map(img => ({ ...img, albumId: album.id, albumName: album.name }))
-        )
-        setAllImages(imgs)
+        const fetchGallery = async () => {
+            setLoading(true)
+            setError(null)
+            try {
+                const [albumsRes, photosRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/gallery/albums`),
+                    fetch(`${API_BASE}/api/gallery/photos`),
+                ])
+                const albumsData = await albumsRes.json()
+                const photosData = await photosRes.json()
+                if (albumsData.success) setAlbums(albumsData.albums)
+                if (photosData.success) setPhotos(photosData.photos)
+            } catch {
+                setError('Could not load gallery. Please try again later.')
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchGallery()
     }, [])
 
-    const displayImages = activeAlbum === 'all'
-        ? allImages
-        : allImages.filter(img => img.albumId === activeAlbum)
+    const displayPhotos = activeAlbum === 'all'
+        ? photos
+        : photos.filter(p => p.albumId?._id === activeAlbum || p.albumId === activeAlbum)
 
-    const currentIndex = lightboxImage ? displayImages.findIndex(img => img.id === lightboxImage.id) : -1
+    const currentIndex = lightboxImage
+        ? displayPhotos.findIndex(p => p._id === lightboxImage._id)
+        : -1
 
     const openLightbox = useCallback((img) => setLightboxImage(img), [])
     const closeLightbox = useCallback(() => setLightboxImage(null), [])
     const prevImage = useCallback(() => {
-        if (currentIndex > 0) setLightboxImage(displayImages[currentIndex - 1])
-    }, [currentIndex, displayImages])
+        if (currentIndex > 0) setLightboxImage(displayPhotos[currentIndex - 1])
+    }, [currentIndex, displayPhotos])
     const nextImage = useCallback(() => {
-        if (currentIndex < displayImages.length - 1) setLightboxImage(displayImages[currentIndex + 1])
-    }, [currentIndex, displayImages])
+        if (currentIndex < displayPhotos.length - 1) setLightboxImage(displayPhotos[currentIndex + 1])
+    }, [currentIndex, displayPhotos])
 
     return (
         <div className="page-enter">
@@ -133,62 +144,75 @@ export default function Gallery() {
                             onClick={() => setActiveAlbum('all')}
                             id="gallery-filter-all"
                         >
-                            All Photos
+                            All Photos {!loading && `(${photos.length})`}
                         </button>
-                        {galleryAlbums.map(album => (
+                        {albums.map(album => (
                             <button
-                                key={album.id}
-                                className={`gallery-filter-btn ${activeAlbum === album.id ? 'active' : ''}`}
-                                onClick={() => setActiveAlbum(album.id)}
-                                id={`gallery-filter-${album.id}`}
+                                key={album._id}
+                                className={`gallery-filter-btn ${activeAlbum === album._id ? 'active' : ''}`}
+                                onClick={() => setActiveAlbum(album._id)}
+                                id={`gallery-filter-${album.slug}`}
                             >
                                 {album.name}
                             </button>
                         ))}
                     </div>
 
-                    {/* Gallery Grid */}
-                    {displayImages.length > 0 ? (
-                        <div className="gallery-grid reveal">
-                            {displayImages.map((img, idx) => (
-                                <div
-                                    key={img.id}
-                                    className={`gallery-item delay-${(idx % 6) + 1}`}
-                                    onClick={() => openLightbox(img)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => e.key === 'Enter' && openLightbox(img)}
-                                    id={`gallery-image-${img.id}`}
-                                >
-                                    <img src={img.src} alt={img.alt} loading="lazy" />
-                                    <div className="gallery-item-overlay">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-                                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
-                                        </svg>
-                                        {img.caption && <span className="gallery-item-caption">{img.caption}</span>}
-                                    </div>
-                                </div>
-                            ))}
+                    {/* Album description */}
+                    {activeAlbum !== 'all' && (() => {
+                        const a = albums.find(a => a._id === activeAlbum)
+                        return a?.description
+                            ? <p className="reveal" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1.5rem', fontStyle: 'italic' }}>{a.description}</p>
+                            : null
+                    })()}
 
-                            {/* Placeholder slots for future images */}
-                            {[1, 2, 3].map(i => (
-                                <div key={`placeholder-${i}`} className="gallery-item gallery-placeholder">
-                                    <div className="gallery-placeholder-inner">
-                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
-                                        </svg>
-                                        <span>Coming Soon</span>
-                                    </div>
-                                </div>
-                            ))}
+                    {/* States */}
+                    {loading && <GallerySkeleton />}
+
+                    {!loading && error && (
+                        <div className="gallery-empty reveal">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
+                                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <h3>Something went wrong</h3>
+                            <p>{error}</p>
                         </div>
-                    ) : (
+                    )}
+
+                    {!loading && !error && displayPhotos.length === 0 && (
                         <div className="gallery-empty reveal">
                             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
                                 <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
                             </svg>
                             <h3>Photos Coming Soon</h3>
                             <p>Images for this album will be uploaded shortly. Check back later!</p>
+                        </div>
+                    )}
+
+                    {/* Gallery Grid */}
+                    {!loading && !error && displayPhotos.length > 0 && (
+                        <div className="gallery-grid reveal">
+                            {displayPhotos.map((photo, idx) => (
+                                <div
+                                    key={photo._id}
+                                    className={`gallery-item delay-${(idx % 6) + 1}`}
+                                    onClick={() => openLightbox(photo)}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => e.key === 'Enter' && openLightbox(photo)}
+                                    id={`gallery-image-${photo._id}`}
+                                >
+                                    <img src={photo.src} alt={photo.alt || photo.name} loading="lazy" />
+                                    <div className="gallery-item-overlay">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+                                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+                                        </svg>
+                                        {(photo.name || photo.caption) && (
+                                            <span className="gallery-item-caption">{photo.name || photo.caption}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
@@ -201,7 +225,7 @@ export default function Gallery() {
                 onPrev={prevImage}
                 onNext={nextImage}
                 hasPrev={currentIndex > 0}
-                hasNext={currentIndex < displayImages.length - 1}
+                hasNext={currentIndex < displayPhotos.length - 1}
             />
         </div>
     )
