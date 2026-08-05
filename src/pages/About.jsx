@@ -2,11 +2,13 @@ import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
 
 const team = [
-    { name: 'Dr. Pushpendu Rakshit', role: 'Founder & CEO', icon: '👩‍🎓', desc: 'Academician, Researcher, Author, Publisher, International copyright and patent holder' },
-    { name: 'Dr. Vinit Joshi ', role: 'Chief Editor', icon: '👨‍🏫', desc: 'Academician, Researcher, Author, Publisher' },
-
-    { name: 'Mrs. Vardha Joshi', role: 'Sub-Editor', icon: '⚖️', desc: 'Academician, Researcher & Publisher' },
-    { name: 'Mr. Vedant Naikwadi', role: 'Tech-Support', icon: '🧑‍💻', desc: 'Research Scholar and Software Developer' },
+    { name: 'Dr. Pushpendu Rakshit', role: 'Founder & CEO', desc: 'Academician, Researcher, Author, Publisher, International copyright and patent holder' },
+    { name: 'Dr. Vinit Joshi', role: 'Chief Editor', desc: 'Academician, Researcher, Author, Publisher' },
+    { name: 'Mrs. Vardha Joshi', role: 'Sub-Editor', desc: 'Academician, Researcher & Publisher' },
+    { name: 'Mr. Vedant Naikwadi', role: 'Tech-Support', desc: 'Research Scholar and Software Developer' },
+    { name: 'Mr. Zaffar Khan', role: 'Synergy Specialist, Member', desc: '' },
+    { name: 'Mr. Aditya Patil', role: 'Brand Strategist, Member', desc: '' },
+    { name: 'Mr. Nilraj Vasudeo', role: 'Pixel Crafter, Member', desc: '' },
 ]
 
 const stats = [
@@ -175,14 +177,6 @@ export default function About() {
                     }}>
                         {team.map((t, i) => (
                             <div key={i} className={`service-card reveal delay-${(i % 4) + 1}`} style={{ textAlign: 'center' }}>
-                                <div style={{
-                                    width: 80, height: 80,
-                                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)',
-                                    borderRadius: '50%',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: '2rem',
-                                    margin: '0 auto 16px',
-                                }}>{t.icon}</div>
                                 <h3 style={{ marginBottom: 4 }}>{t.name}</h3>
                                 <span style={{
                                     display: 'block',
@@ -193,7 +187,7 @@ export default function About() {
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.05em',
                                 }}>{t.role}</span>
-                                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>{t.desc}</p>
+                                {t.desc && <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>{t.desc}</p>}
                             </div>
                         ))}
                     </div>
