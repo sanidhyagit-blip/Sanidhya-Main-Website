@@ -66,7 +66,6 @@ const recentActivities = [
         date: 'TBA',
         location: 'TBA',
         registrationOpen: false,
-        link: '/ivcgsmt',
     },
     {
         tag: 'Conference',
