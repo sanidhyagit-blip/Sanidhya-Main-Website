@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
+import { BookOpen, Search, Globe, Building, BarChart3, GraduationCap, Library, PenTool, Trophy } from 'lucide-react'
 
 const serviceData = {
     'book-chapter': {
@@ -17,9 +18,9 @@ const serviceData = {
         ],
         cta: 'Submit Your Chapter',
         features: [
-            { icon: '📖', title: 'ISBN Registration', desc: 'Every published book receives an ISBN for global identification and cataloging.' },
-            { icon: '🔍', title: 'Peer Reviewed', desc: 'All chapters undergo rigorous double-blind peer review by domain experts.' },
-            { icon: '🌍', title: 'Global Reach', desc: 'Published works are distributed across major academic databases and libraries.' },
+            { icon: BookOpen, title: 'ISBN Registration', desc: 'Every published book receives an ISBN for global identification and cataloging.' },
+            { icon: Search, title: 'Peer Reviewed', desc: 'All chapters undergo rigorous double-blind peer review by domain experts.' },
+            { icon: Globe, title: 'Global Reach', desc: 'Published works are distributed across major academic databases and libraries.' },
         ],
     },
     'case-studies': {
@@ -36,9 +37,9 @@ const serviceData = {
         ],
         cta: 'Submit Your Case Study',
         features: [
-            { icon: '🏢', title: 'Industry Relevant', desc: 'Case studies are selected for their practical relevance to current industry challenges.' },
-            { icon: '📊', title: 'Data-Driven', desc: 'We prioritize case studies backed by robust data analysis and methodology.' },
-            { icon: '🎓', title: 'Academic Impact', desc: 'Published case studies are used in classrooms and cited in academic journals worldwide.' },
+            { icon: Building, title: 'Industry Relevant', desc: 'Case studies are selected for their practical relevance to current industry challenges.' },
+            { icon: BarChart3, title: 'Data-Driven', desc: 'We prioritize case studies backed by robust data analysis and methodology.' },
+            { icon: GraduationCap, title: 'Academic Impact', desc: 'Published case studies are used in classrooms and cited in academic journals worldwide.' },
         ],
     },
     'reference-books': {
@@ -55,9 +56,9 @@ const serviceData = {
         ],
         cta: 'Propose a Reference Book',
         features: [
-            { icon: '📚', title: 'Comprehensive Coverage', desc: 'Our reference books provide exhaustive coverage of subjects for researchers and practitioners.' },
-            { icon: '✍️', title: 'Expert Authorship', desc: 'Each volume is curated by recognized experts with extensive domain knowledge.' },
-            { icon: '🏆', title: 'Quality Assurance', desc: 'Multi-stage review process ensures accuracy, clarity, and academic rigor.' },
+            { icon: Library, title: 'Comprehensive Coverage', desc: 'Our reference books provide exhaustive coverage of subjects for researchers and practitioners.' },
+            { icon: PenTool, title: 'Expert Authorship', desc: 'Each volume is curated by recognized experts with extensive domain knowledge.' },
+            { icon: Trophy, title: 'Quality Assurance', desc: 'Multi-stage review process ensures accuracy, clarity, and academic rigor.' },
         ],
     },
 }
@@ -97,8 +98,8 @@ export default function LiteraryService({ type }) {
 
                     <div className="services-grid" style={{ marginTop: 32 }}>
                         {data.features.map((f, i) => (
-                            <div key={i} className={`service-card reveal delay-${i + 1}`}>
-                                <div className="service-card-icon">{f.icon}</div>
+                            <div key={i} className="service-card reveal">
+                                <div className="service-card-icon"><f.icon size={24} strokeWidth={1.5} /></div>
                                 <h3>{f.title}</h3>
                                 <p>{f.desc}</p>
                             </div>

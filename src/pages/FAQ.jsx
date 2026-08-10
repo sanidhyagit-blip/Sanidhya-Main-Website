@@ -73,7 +73,7 @@ export default function FAQ() {
                 <div className="container">
                     <div className="faq-list">
                         {faqData.map((item, i) => (
-                            <div key={i} className={`reveal delay-${(i % 4) + 1}`}>
+                            <div key={i} className="reveal">
                                 <div
                                     className={`faq-item${openIdx === i ? ' open' : ''}`}
                                 >

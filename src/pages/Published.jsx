@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
+import { BookOpen, BookMarked } from 'lucide-react'
 
 const publishedWorks = [
-    { title: 'Advances in Sustainable Engineering', type: 'Edited Book', year: 2025, icon: '📗' },
-    { title: 'Contemporary Management Practices', type: 'Reference Book', year: 2025, icon: '📘' },
+    { title: 'Advances in Sustainable Engineering', type: 'Edited Book', year: 2025, icon: BookOpen },
+    { title: 'Contemporary Management Practices', type: 'Reference Book', year: 2025, icon: BookMarked },
     // { title: 'Innovation in Higher Education', type: 'Conference Proceedings', year: 2024, icon: '📙' },
     // { title: 'Digital Transformation in Healthcare', type: 'Edited Book', year: 2024, icon: '📕' },
     // { title: 'Research Methodology: A Modern Approach', type: 'Reference Book', year: 2024, icon: '📗' },
@@ -41,8 +42,8 @@ export default function Published() {
 
                     <div className="published-grid">
                         {publishedWorks.map((work, i) => (
-                            <div key={i} className={`published-item reveal delay-${(i % 4) + 1}`}>
-                                <div className="published-item-icon">{work.icon}</div>
+                            <div key={i} className="published-item reveal">
+                                <div className="published-item-icon"><work.icon size={24} strokeWidth={1.5} /></div>
                                 <h4>{work.title}</h4>
                                 <p>{work.type} • {work.year}</p>
                                 <a href="#" style={{ fontSize: '0.82rem', color: 'var(--accent-gold)', fontWeight: 600 }}>

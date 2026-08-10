@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
+import { GraduationCap, Globe, Briefcase, Mic, BookOpen, Users, Award, X } from 'lucide-react'
 
 const timelineSteps = [
     {
@@ -45,13 +46,14 @@ const timelineSteps = [
     },
 ]
 
+const activityIcons = [GraduationCap, Globe, GraduationCap, GraduationCap, Briefcase, Mic, GraduationCap, Award]
+
 const recentActivities = [
     {
         tag: 'Conference',
         type: '',
         title: 'National Conference',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
         date: 'TBA',
         location: 'TBA',
         registrationOpen: false,
@@ -61,7 +63,6 @@ const recentActivities = [
         type: '',
         title: 'International Conference',
         desc: 'IVCGSMT 2026 – Explore global sustainable management & technologies with Dwijendra University, Bali.',
-        icon: '🌐',
         date: '3rd June, 2026',
         location: 'Virtual',
         registrationOpen: true,
@@ -72,7 +73,6 @@ const recentActivities = [
         type: '',
         title: 'International Summits',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
         date: 'TBA',
         location: 'TBA',
         registrationOpen: false,
@@ -82,7 +82,6 @@ const recentActivities = [
         type: '',
         title: 'International Symposiums',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
         date: 'TBA',
         location: 'TBA',
         registrationOpen: false,
@@ -92,7 +91,6 @@ const recentActivities = [
         type: '',
         title: 'International Workshops',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
         date: 'TBA',
         location: 'TBA',
         registrationOpen: false,
@@ -102,7 +100,6 @@ const recentActivities = [
         type: '',
         title: 'Seminars/Webinars',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
         date: 'TBA',
         location: 'TBA',
         registrationOpen: false,
@@ -112,7 +109,6 @@ const recentActivities = [
         type: '',
         title: 'Faculty Development Program',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
         date: '7th April, 2026',
         location: 'Online',
         registrationOpen: false,
@@ -122,47 +118,12 @@ const recentActivities = [
         type: '',
         title: 'Management Development Program',
         desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
-        icon: '🎓',
         date: 'TBA',
         location: 'TBA',
         registrationOpen: false,
     },
 
 ]
-
-function HeroParticles() {
-    const particles = useMemo(() => (
-        Array.from({ length: 30 }, (_, i) => ({
-            id: i,
-            left: `${Math.random() * 100}%`,
-            bottom: `${Math.random() * 20 - 10}%`,
-            size: `${4 + Math.random() * 6}px`,
-            duration: `${8 + Math.random() * 12}s`,
-            delay: `${Math.random() * 8}s`,
-            opacity: 0.2 + Math.random() * 0.4,
-        }))
-    ), [])
-
-    return (
-        <div className="hero-particles">
-            {particles.map((p) => (
-                <div
-                    key={p.id}
-                    className="hero-particle"
-                    style={{
-                        left: p.left,
-                        bottom: p.bottom,
-                        width: p.size,
-                        height: p.size,
-                        animationDuration: p.duration,
-                        animationDelay: p.delay,
-                        opacity: p.opacity,
-                    }}
-                />
-            ))}
-        </div>
-    )
-}
 
 function Hero3DBook() {
     const bookRef = useRef(null)
@@ -201,8 +162,8 @@ function Hero3DBook() {
                     <div className="book-front-inner">
                         <div className="book-cover-ornament top" />
                         <div className="book-cover-content">
-                            <span className="book-cover-label" style={{ fontSize: '1rem' }} fontWeight="bold">Sanidhya</span>
-                            <span className="book-cover-title">Academic & Research<br />Publishing</span>
+                            <span className="book-cover-label" style={{ fontSize: '1rem', fontWeight: 'bold' }}>Sanidhya</span>
+                            <span className="book-cover-title">Academic &<br />Publishing</span>
                             <span className="book-cover-year">2026</span>
                         </div>
                         <div className="book-cover-ornament bottom" />
@@ -258,23 +219,32 @@ function SubmissionTracker() {
 
 export default function Home() {
     const [activeStep, setActiveStep] = useState(null)
+    const [announcementVisible, setAnnouncementVisible] = useState(true)
     useReveal()
 
     return (
         <div className="page-enter">
-                {/* ===== MARQUEE STRIP ===== */}
-                <div className="marquee-strip">
-                    <div className="marquee-track">
-                        <span className="marquee-content">
-                            🔔 More conferences and events coming up. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            🔔 More conferences and events coming up. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        </span>
+                {/* ===== ANNOUNCEMENT BAR ===== */}
+                {announcementVisible && (
+                    <div className="announcement-bar">
+                        <div className="container announcement-bar-inner">
+                            <span className="announcement-bar-text">
+                                <span className="announcement-bar-badge">New</span>
+                                More conferences and events coming up.
+                            </span>
+                            <button
+                                className="announcement-bar-close"
+                                onClick={() => setAnnouncementVisible(false)}
+                                aria-label="Dismiss announcement"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* ===== HERO ===== */}
                 <section className="hero" id="hero">
-                    <HeroParticles />
                     <div className="hero-overlay" />
                     <div className="hero-content">
                     <div className="hero-text">
@@ -323,14 +293,14 @@ export default function Home() {
                     </div>
                     <div className="about-grid">
                         <div className="about-card reveal-left delay-1">
-                            <div className="about-icon">🔭</div>
+                            <div className="about-icon"><BookOpen size={28} strokeWidth={1.5} /></div>
                             <h3>Our Vision</h3>
                             <p>
                                 Our Vision is to bridge academic and research, fostering continuous exploration and innovation.
                             </p>
                         </div>
                         <div className="about-card reveal-right delay-2">
-                            <div className="about-icon">🎯</div>
+                            <div className="about-icon"><Users size={28} strokeWidth={1.5} /></div>
                             <h3>Our Mission</h3>
                             <p>
                                 Innovative practices to enhance academic quality and growth prospects by furnishing skills.
@@ -374,18 +344,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ===== SUBMISSION TRACKER MOCK ===== */}
-            {/* <section className="section" id="tracker">
-                <div className="container">
-                    <div className="section-header reveal">
-                        <span className="section-label">Track Your Submission</span>
-                        <h2>Real-Time Submission Tracking</h2>
-                        <p>Stay informed at every stage of your publication journey with our transparent tracking system.</p>
-                    </div>
-                    <SubmissionTracker />
-                </div>
-            </section> */}
-
             {/* ===== RECENT ACTIVITIES ===== */}
             <section className="section section-alt" id="activities">
                 <div className="container">
@@ -395,16 +353,20 @@ export default function Home() {
                         <p>Stay updated with our latest conferences, workshops, and academic events.</p>
                     </div>
                     <div className="activities-grid">
-                        {recentActivities.map((act, i) => (
-                            <div key={i} className={`activity-card reveal delay-${(i % 4) + 1}`}>
+                        {recentActivities.map((act, i) => {
+                            const IconComponent = activityIcons[i] || GraduationCap
+                            return (
+                            <div key={i} className="activity-card reveal">
                                 <div className="activity-card-image">
-                                    <span style={{ position: 'relative', zIndex: 2, fontSize: '3rem' }}>{act.icon}</span>
-                                    <span style={{
-                                        position: 'absolute', top: 12, right: 12, zIndex: 3,
-                                        background: act.type === 'Brochure' ? 'rgba(200,169,80,0.9)' : 'rgba(27,42,74,0.9)',
-                                        color: '#fff', padding: '4px 12px', borderRadius: '50px',
-                                        fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase'
-                                    }}>{act.type}</span>
+                                    <IconComponent size={48} strokeWidth={1.2} style={{ position: 'relative', zIndex: 2 }} />
+                                    {act.type && (
+                                        <span style={{
+                                            position: 'absolute', top: 12, right: 12, zIndex: 3,
+                                            background: act.type === 'Brochure' ? 'rgba(200,169,80,0.9)' : 'rgba(27,42,74,0.9)',
+                                            color: '#fff', padding: '4px 12px', borderRadius: '50px',
+                                            fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase'
+                                        }}>{act.type}</span>
+                                    )}
                                 </div>
                                 <div className="activity-card-body">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -439,7 +401,7 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                        )})}
                     </div>
                 </div>
             </section>

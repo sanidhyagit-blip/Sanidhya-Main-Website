@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
+import { Target, Globe, Star, Handshake, Lightbulb, BookOpen, Telescope, Users } from 'lucide-react'
 
 const team = [
     { name: 'Dr. Pushpendu Rakshit', role: 'Founder & CEO', desc: 'Academician, Researcher, Author, Publisher, International copyright and patent holder' },
@@ -20,13 +21,15 @@ const stats = [
     { number: '2+', label: 'Years of Excellence' },
 ]
 
+const valueIcons = [Target, Globe, Star, Handshake, Lightbulb, BookOpen]
+
 const values = [
-    { icon: '🎯', title: 'Academic Integrity', desc: 'We uphold the highest standards of academic honesty, ethical research practices, and plagiarism-free publishing.' },
-    { icon: '🌍', title: 'Global Reach', desc: 'Our publications and conferences connect researchers across 30+ countries, fostering international academic collaboration.' },
-    { icon: '⭐', title: 'Quality Assurance', desc: 'Every publication undergoes rigorous double-blind peer review by subject matter experts to ensure scholarly excellence.' },
-    { icon: '🤝', title: 'Author Support', desc: 'We provide end-to-end assistance — from manuscript preparation to post-publication support — nurturing academic careers.' },
-    { icon: '💡', title: 'Innovation', desc: 'We embrace cutting-edge research methodologies, digital publishing technologies, and interdisciplinary approaches.' },
-    { icon: '📚', title: 'Knowledge Sharing', desc: 'We believe in open access to knowledge, democratizing academic resources for researchers at every career stage.' },
+    { title: 'Academic Integrity', desc: 'We uphold the highest standards of academic honesty, ethical research practices, and plagiarism-free publishing.' },
+    { title: 'Global Reach', desc: 'Our publications and conferences connect researchers across 30+ countries, fostering international academic collaboration.' },
+    { title: 'Quality Assurance', desc: 'Every publication undergoes rigorous double-blind peer review by subject matter experts to ensure scholarly excellence.' },
+    { title: 'Author Support', desc: 'We provide end-to-end assistance — from manuscript preparation to post-publication support — nurturing academic careers.' },
+    { title: 'Innovation', desc: 'We embrace cutting-edge research methodologies, digital publishing technologies, and interdisciplinary approaches.' },
+    { title: 'Knowledge Sharing', desc: 'We believe in open access to knowledge, democratizing academic resources for researchers at every career stage.' },
 ]
 
 export default function About() {
@@ -78,7 +81,7 @@ export default function About() {
                     </div>
                     <div className="about-grid">
                         <div className="about-card reveal-left delay-1">
-                            <div className="about-icon">🔭</div>
+                            <div className="about-icon"><Telescope size={28} strokeWidth={1.5} /></div>
                             <h3>Need</h3>
                             <p>
                                 To be a globally recognized platform that drives innovative practices in academic
@@ -89,7 +92,7 @@ export default function About() {
                             </p>
                         </div>
                         <div className="about-card reveal-right delay-2">
-                            <div className="about-icon">🎯</div>
+                            <div className="about-icon"><Target size={28} strokeWidth={1.5} /></div>
                             <h3>Purpose</h3>
                             <p>
                                 Our purpose is to bridge academia and research, fostering continuous exploration
@@ -112,13 +115,16 @@ export default function About() {
                         <p>The principles that guide every decision and interaction at Sanidhya.</p>
                     </div>
                     <div className="services-grid">
-                        {values.map((v, i) => (
-                            <div key={i} className={`service-card reveal delay-${(i % 3) + 1}`}>
-                                <div className="service-card-icon">{v.icon}</div>
-                                <h3>{v.title}</h3>
-                                <p>{v.desc}</p>
-                            </div>
-                        ))}
+                        {values.map((v, i) => {
+                            const IconComponent = valueIcons[i]
+                            return (
+                                <div key={i} className="service-card reveal">
+                                    <div className="service-card-icon"><IconComponent size={24} strokeWidth={1.5} /></div>
+                                    <h3>{v.title}</h3>
+                                    <p>{v.desc}</p>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             </section>
@@ -139,7 +145,7 @@ export default function About() {
                         margin: '0 auto',
                     }}>
                         {stats.map((s, i) => (
-                            <div key={i} className={`reveal delay-${(i % 6) + 1}`} style={{ padding: 20 }}>
+                            <div key={i} className="reveal" style={{ padding: 20 }}>
                                 <span style={{
                                     display: 'block',
                                     fontFamily: 'var(--font-heading)',
@@ -168,25 +174,14 @@ export default function About() {
                         <h2>Our Team</h2>
                         <p>Meet the experts behind Sanidhya's academic publishing excellence.</p>
                     </div>
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-                        gap: 28,
-                        maxWidth: 1000,
-                        margin: '0 auto',
-                    }}>
+                    <div className="team-grid">
                         {team.map((t, i) => (
-                            <div key={i} className={`service-card reveal delay-${(i % 4) + 1}`} style={{ textAlign: 'center' }}>
+                            <div key={i} className="team-card reveal">
+                                <div className="team-card-avatar">
+                                    {t.name.split(' ').filter(w => w[0] === w[0]?.toUpperCase() && w.length > 2).slice(0, 2).map(w => w[0]).join('')}
+                                </div>
                                 <h3 style={{ marginBottom: 4 }}>{t.name}</h3>
-                                <span style={{
-                                    display: 'block',
-                                    color: 'var(--accent-gold)',
-                                    fontSize: '0.82rem',
-                                    fontWeight: 600,
-                                    marginBottom: 12,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.05em',
-                                }}>{t.role}</span>
+                                <span className="team-card-role">{t.role}</span>
                                 {t.desc && <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>{t.desc}</p>}
                             </div>
                         ))}

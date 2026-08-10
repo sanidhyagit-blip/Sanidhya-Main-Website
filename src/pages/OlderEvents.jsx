@@ -75,7 +75,7 @@ export default function OlderEvents() {
 
                     <div className="events-archive-grid">
                         {pastEvents.map((event, i) => (
-                            <div key={event.id} className={`event-archive-card reveal delay-${(i % 4) + 1}`}>
+                            <div key={event.id} className="event-archive-card reveal">
                                 <div className="event-archive-banner">
                                     {event.banner ? (
                                         <img src={event.banner} alt={event.title} />

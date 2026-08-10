@@ -200,7 +200,7 @@ export default function IVCGSMT() {
                             { icon: <IconBook />, title: 'Publications', desc: 'ISBN proceedings with reputed publisher. Selected papers in Scopus & ABDC journals.' },
                             { icon: <IconUsers />, title: 'Networking', desc: 'Connect with international colleagues and professionals in business & innovation.' },
                         ].map((h, i) => (
-                            <div key={i} className={`ivcgsmt-highlight-card reveal delay-${i + 1}`}>
+                            <div key={i} className="ivcgsmt-highlight-card reveal">
                                 <span className="ivcgsmt-highlight-icon">{h.icon}</span>
                                 <h4>{h.title}</h4>
                                 <p>{h.desc}</p>
@@ -220,7 +220,7 @@ export default function IVCGSMT() {
                     </div>
                     <div className="ivcgsmt-tracks-grid">
                         {tracks.map((track, i) => (
-                            <div key={i} className={`ivcgsmt-track-card reveal delay-${i + 1}`}>
+                            <div key={i} className="ivcgsmt-track-card reveal">
                                 <div className="ivcgsmt-track-header">
                                     <span className="ivcgsmt-track-icon">{track.icon}</span>
                                     <h4>{track.title}</h4>
@@ -283,7 +283,7 @@ export default function IVCGSMT() {
                     </div>
                     <div className="ivcgsmt-officials-grid">
                         {officials.map((o, i) => (
-                            <div key={i} className={`ivcgsmt-official-card reveal delay-${i + 1}`}>
+                            <div key={i} className="ivcgsmt-official-card reveal">
                                 <span className="ivcgsmt-official-role">{o.role}</span>
                                 <h4>{o.name}</h4>
                                 <p>{o.affiliation}</p>

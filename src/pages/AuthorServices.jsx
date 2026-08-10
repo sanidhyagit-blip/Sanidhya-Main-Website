@@ -2,35 +2,36 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
 import API_BASE from '../api'
+import { FileText, BookOpen, FileCheck, GraduationCap, Search, PenLine } from 'lucide-react'
 
 const services = [
     {
-        icon: '📝',
+        icon: FileText,
         title: 'Research Paper Writing',
         desc: 'Expert assistance in writing high-quality research papers across all disciplines with proper methodology and citation.',
     },
     {
-        icon: '📖',
+        icon: BookOpen,
         title: 'Book Chapter Development',
         desc: 'Professional guidance in developing compelling book chapters with structured argumentation and evidence-based writing.',
     },
     {
-        icon: '📄',
+        icon: FileCheck,
         title: 'Article & Reference Book Composition',
         desc: 'Assistance in composing literary work for journals, magazines, reference books and academic publications with editorial standards.',
     },
     {
-        icon: '🎓',
+        icon: GraduationCap,
         title: 'PhD. Assistance & Thesis Development',
         desc: 'Comprehensive support for PhD. assistance, thesis development including literature review, methodology, and analysis.',
     },
     {
-        icon: '🔍',
+        icon: Search,
         title: 'Case Study Book',
         desc: 'Systematic publication of case studies and case scenarios with literature review services to identify gaps, synthesize findings, and establish your research context for publication.',
     },
     {
-        icon: '✏️',
+        icon: PenLine,
         title: 'Editing & Proofreading',
         desc: 'Professional editing and proofreading to ensure your manuscript meets the highest standards of clarity and accuracy.',
     },
@@ -106,8 +107,8 @@ export default function AuthorServices() {
 
                     <div className="services-grid" style={{ marginTop: 40, marginBottom: 60 }}>
                         {services.map((s, i) => (
-                            <div key={i} className={`service-card reveal delay-${(i % 3) + 1}`}>
-                                <div className="service-card-icon">{s.icon}</div>
+                            <div key={i} className="service-card reveal">
+                                <div className="service-card-icon"><s.icon size={24} strokeWidth={1.5} /></div>
                                 <h3>{s.title}</h3>
                                 <p>{s.desc}</p>
                             </div>
