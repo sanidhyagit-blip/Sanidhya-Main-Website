@@ -62,12 +62,12 @@ const recentActivities = [
         tag: 'Conference',
         type: '',
         title: 'International Conference',
-        desc: 'IVCGSMT 2026 – Explore global sustainable management & technologies with Dwijendra University, Bali.',
-        date: '3rd June, 2026',
-        location: 'Virtual',
-        registrationOpen: true,
+        desc: 'Join leading researchers from across the globe to discuss breakthrough innovations in science and technology.',
+        date: 'TBA',
+        location: 'TBA',
+        registrationOpen: false,
         link: '/ivcgsmt',
-    },      
+    },
     {
         tag: 'Conference',
         type: '',
@@ -224,29 +224,29 @@ export default function Home() {
 
     return (
         <div className="page-enter">
-                {/* ===== ANNOUNCEMENT BAR ===== */}
-                {announcementVisible && (
-                    <div className="announcement-bar">
-                        <div className="container announcement-bar-inner">
-                            <span className="announcement-bar-text">
-                                <span className="announcement-bar-badge">New</span>
-                                More conferences and events coming up.
-                            </span>
-                            <button
-                                className="announcement-bar-close"
-                                onClick={() => setAnnouncementVisible(false)}
-                                aria-label="Dismiss announcement"
-                            >
-                                <X size={14} />
-                            </button>
-                        </div>
+            {/* ===== ANNOUNCEMENT BAR ===== */}
+            {announcementVisible && (
+                <div className="announcement-bar">
+                    <div className="container announcement-bar-inner">
+                        <span className="announcement-bar-text">
+                            <span className="announcement-bar-badge">New</span>
+                            More conferences and events coming up.
+                        </span>
+                        <button
+                            className="announcement-bar-close"
+                            onClick={() => setAnnouncementVisible(false)}
+                            aria-label="Dismiss announcement"
+                        >
+                            <X size={14} />
+                        </button>
                     </div>
-                )}
+                </div>
+            )}
 
-                {/* ===== HERO ===== */}
-                <section className="hero" id="hero">
-                    <div className="hero-overlay" />
-                    <div className="hero-content">
+            {/* ===== HERO ===== */}
+            <section className="hero" id="hero">
+                <div className="hero-overlay" />
+                <div className="hero-content">
                     <div className="hero-text">
                         <div className="hero-badge" style={{ fontSize: '1.3rem' }}>Welcome to Sanidhya</div>
                         <h1>
@@ -356,52 +356,53 @@ export default function Home() {
                         {recentActivities.map((act, i) => {
                             const IconComponent = activityIcons[i] || GraduationCap
                             return (
-                            <div key={i} className="activity-card reveal">
-                                <div className="activity-card-image">
-                                    <IconComponent size={48} strokeWidth={1.2} style={{ position: 'relative', zIndex: 2 }} />
-                                    {act.type && (
-                                        <span style={{
-                                            position: 'absolute', top: 12, right: 12, zIndex: 3,
-                                            background: act.type === 'Brochure' ? 'rgba(200,169,80,0.9)' : 'rgba(27,42,74,0.9)',
-                                            color: '#fff', padding: '4px 12px', borderRadius: '50px',
-                                            fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase'
-                                        }}>{act.type}</span>
-                                    )}
-                                </div>
-                                <div className="activity-card-body">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                                        <span className="activity-tag">{act.tag}</span>
-                                        {act.registrationOpen ? (
-                                            <span style={{ fontSize: '0.7rem', color: '#10B981', fontWeight: 600 }}>● Registration Open</span>
-                                        ) : (
-                                            <span style={{ fontSize: '0.7rem', color: '#F59E0B', fontWeight: 600 }}>● Coming Soon</span>
+                                <div key={i} className="activity-card reveal">
+                                    <div className="activity-card-image">
+                                        <IconComponent size={48} strokeWidth={1.2} style={{ position: 'relative', zIndex: 2 }} />
+                                        {act.type && (
+                                            <span style={{
+                                                position: 'absolute', top: 12, right: 12, zIndex: 3,
+                                                background: act.type === 'Brochure' ? 'rgba(200,169,80,0.9)' : 'rgba(27,42,74,0.9)',
+                                                color: '#fff', padding: '4px 12px', borderRadius: '50px',
+                                                fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase'
+                                            }}>{act.type}</span>
                                         )}
                                     </div>
-                                    <h4>{act.title}</h4>
-                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 8 }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                                            {act.date}
-                                        </span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                                            {act.location}
-                                        </span>
-                                    </p>
-                                    <p style={{ fontSize: '0.88rem' }}>{act.desc}</p>
-                                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                        <Link to={act.link || '/development/fdp'} className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
-                                            View Details →
-                                        </Link>
-                                        {act.registrationOpen && (
-                                            <Link to="/author-services" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
-                                                Register Now
+                                    <div className="activity-card-body">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                            <span className="activity-tag">{act.tag}</span>
+                                            {act.registrationOpen ? (
+                                                <span style={{ fontSize: '0.7rem', color: '#10B981', fontWeight: 600 }}>● Registration Open</span>
+                                            ) : (
+                                                <span style={{ fontSize: '0.7rem', color: '#F59E0B', fontWeight: 600 }}>● Coming Soon</span>
+                                            )}
+                                        </div>
+                                        <h4>{act.title}</h4>
+                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 8 }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                                {act.date}
+                                            </span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                                                {act.location}
+                                            </span>
+                                        </p>
+                                        <p style={{ fontSize: '0.88rem' }}>{act.desc}</p>
+                                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                            <Link to={act.link || '/development/fdp'} className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
+                                                View Details →
                                             </Link>
-                                        )}
+                                            {act.registrationOpen && (
+                                                <Link to="/author-services" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
+                                                    Register Now
+                                                </Link>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )})}
+                            )
+                        })}
                     </div>
                 </div>
             </section>
