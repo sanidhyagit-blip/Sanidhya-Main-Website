@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback, useRef } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
 import { GraduationCap, Globe, Briefcase, Mic, BookOpen, Users, Award, X } from 'lucide-react'
@@ -219,9 +220,38 @@ function SubmissionTracker() {
 export default function Home() {
     const [activeStep, setActiveStep] = useState(null)
     const [announcementVisible, setAnnouncementVisible] = useState(true)
+    const [popupVisible, setPopupVisible] = useState(false)
     useReveal()
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setPopupVisible(true)
+        }, 5000)
+        return () => clearTimeout(timer)
+    }, [])
+
     return (
+        <>
+            {/* ===== PATENT POPUP (Portal to body) ===== */}
+            {popupVisible && createPortal(
+                <div className="patent-popup-overlay" onClick={() => setPopupVisible(false)}>
+                    <div className="patent-popup" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="patent-popup-close"
+                            onClick={() => setPopupVisible(false)}
+                            aria-label="Close popup"
+                        >
+                            <X size={20} />
+                        </button>
+                        <img
+                            src="/indian-design-patent.jpg"
+                            alt="Indian Design Patent - Sanidhya"
+                            className="patent-popup-image"
+                        />
+                    </div>
+                </div>,
+                document.body
+            )}
         <div className="page-enter">
             {/* ===== ANNOUNCEMENT BAR ===== */}
             {announcementVisible && (
@@ -424,5 +454,6 @@ export default function Home() {
                 </div>
             </section>
         </div>
+        </>
     )
 }

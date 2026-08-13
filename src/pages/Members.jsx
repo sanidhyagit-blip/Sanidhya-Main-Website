@@ -10,7 +10,7 @@ const membersData = [
     { srNo: 1, id: 'SIAE26001', name: 'Dr. Vinit Joshi', issued: 'May 2026', expiry: 'May 2027' },
     { srNo: 2, id: 'SIAE26002', name: 'Mr. Zaffar Khan', issued: 'May 2026', expiry: 'May 2027' },
     { srNo: 3, id: 'SIAE26003', name: 'Mr. Aditya Patil', issued: 'May 2026', expiry: 'May 2027' },
-    { srNo: 4, id: 'SIAE26004', name: 'Mrs. Varda Joshi', issued: 'May 2026', expiry: 'May 2027' },
+    { srNo: 4, id: 'SIAE26004', name: 'Mrs. Varada Joshi', issued: 'May 2026', expiry: 'May 2027' },
     { srNo: 5, id: 'SIAE26005', name: 'Mr. Nilraj Vasudeo', issued: 'May 2026', expiry: 'May 2027' },
     { srNo: 6, id: 'SIAE26006', name: 'Dr. Elvis Madondo', issued: 'May 2026', expiry: 'May 2027' },
     { srNo: 7, id: 'SIAE26007', name: 'Mr. Vedant Naikwadi', issued: 'May 2026', expiry: 'May 2027' },

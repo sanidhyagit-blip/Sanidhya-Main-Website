@@ -3857,3 +3857,88 @@ select.form-control {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== PATENT POPUP ===== */
+.patent-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 22, 40, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: popupFadeIn 0.35s ease-out;
+}
+
+.patent-popup {
+  position: relative;
+  max-width: 520px;
+  width: 90vw;
+  max-height: 90vh;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: popupScaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.patent-popup-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.patent-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.patent-popup-close:hover {
+  background: rgba(184, 50, 66, 0.85);
+  transform: scale(1.1);
+}
+
+@keyframes popupFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes popupScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .patent-popup {
+    max-width: 92vw;
+    border-radius: 12px;
+  }
+  .patent-popup-close {
+    top: 6px;
+    right: 6px;
+    width: 30px;
+    height: 30px;
+  }
+}
