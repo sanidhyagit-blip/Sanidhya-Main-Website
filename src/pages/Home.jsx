@@ -247,6 +247,13 @@ export default function Home() {
                             src="/indian-design-patent.jpg"
                             alt="Indian Design Patent - Sanidhya"
                             className="patent-popup-image"
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '85vh',
+                                width: 'auto',
+                                height: 'auto',
+                                objectFit: 'contain'
+                            }}
                         />
                     </div>
                 </div>,

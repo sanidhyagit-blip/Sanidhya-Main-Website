@@ -3874,9 +3874,11 @@ select.form-control {
 
 .patent-popup {
   position: relative;
-  max-width: 520px;
-  width: 90vw;
-  max-height: 90vh;
+  max-width: Min(90vw, 700px);
+  max-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
@@ -3885,7 +3887,9 @@ select.form-control {
 
 .patent-popup-image {
   display: block;
-  width: 100%;
+  max-width: 100%;
+  max-height: 85vh;
+  width: auto;
   height: auto;
   object-fit: contain;
 }
