@@ -5,7 +5,7 @@ import { Target, Globe, Star, Handshake, Lightbulb, BookOpen, Telescope, Users }
 const team = [
     { name: 'Dr. Pushpendu Rakshit', role: 'Founder & CEO', desc: 'Academician, Researcher, Author, Publisher, International copyright and patent holder' },
     { name: 'Dr. Vinit Joshi', role: 'Chief Editor', desc: 'Academician, Researcher, Author, Publisher' },
-    { name: 'Mrs. Vardha Joshi', role: 'Sub-Editor', desc: 'Academician, Researcher & Publisher' },
+    { name: 'Mrs. Varada Joshi', role: 'Sub-Editor', desc: 'Academician, Researcher & Publisher' },
     { name: 'Mr. Vedant Naikwadi', role: 'Tech-Support', desc: 'Research Scholar and Software Developer' },
     { name: 'Mr. Zaffar Khan', role: 'Synergy Specialist, Member', desc: '' },
     { name: 'Mr. Aditya Patil', role: 'Brand Strategist, Member', desc: '' },
