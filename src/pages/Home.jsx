@@ -217,10 +217,16 @@ function SubmissionTracker() {
     )
 }
 
+const popupImages = [
+    { src: '/symposium-poster.jpg', alt: 'International Symposium on Resilience, Sustainability & Green Solutions 2026' },
+    { src: '/indian-design-patent.jpg', alt: 'Indian Design Patent - Sanidhya' },
+]
+
 export default function Home() {
     const [activeStep, setActiveStep] = useState(null)
     const [announcementVisible, setAnnouncementVisible] = useState(true)
     const [popupVisible, setPopupVisible] = useState(false)
+    const [popupIndex, setPopupIndex] = useState(0)
     useReveal()
 
     useEffect(() => {
@@ -230,9 +236,28 @@ export default function Home() {
         return () => clearTimeout(timer)
     }, [])
 
+    /* Arrow‑key navigation for the popup carousel */
+    useEffect(() => {
+        if (!popupVisible) return
+        const handleKey = (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                setPopupIndex((i) => (i > 0 ? i - 1 : popupImages.length - 1))
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                setPopupIndex((i) => (i < popupImages.length - 1 ? i + 1 : 0))
+            } else if (e.key === 'Escape') {
+                setPopupVisible(false)
+            }
+        }
+        window.addEventListener('keydown', handleKey)
+        return () => window.removeEventListener('keydown', handleKey)
+    }, [popupVisible])
+
+    const popupPrev = useCallback(() => setPopupIndex((i) => (i > 0 ? i - 1 : popupImages.length - 1)), [])
+    const popupNext = useCallback(() => setPopupIndex((i) => (i < popupImages.length - 1 ? i + 1 : 0)), [])
+
     return (
         <>
-            {/* ===== PATENT POPUP (Portal to body) ===== */}
+            {/* ===== POPUP CAROUSEL (Portal to body) ===== */}
             {popupVisible && createPortal(
                 <div className="patent-popup-overlay" onClick={() => setPopupVisible(false)}>
                     <div className="patent-popup" onClick={(e) => e.stopPropagation()}>
@@ -243,9 +268,18 @@ export default function Home() {
                         >
                             <X size={20} />
                         </button>
+
+                        {/* Navigation arrows */}
+                        <button className="popup-nav popup-nav-prev" onClick={popupPrev} aria-label="Previous image">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+                        </button>
+                        <button className="popup-nav popup-nav-next" onClick={popupNext} aria-label="Next image">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
+                        </button>
+
                         <img
-                            src="/indian-design-patent.jpg"
-                            alt="Indian Design Patent - Sanidhya"
+                            src={popupImages[popupIndex].src}
+                            alt={popupImages[popupIndex].alt}
                             className="patent-popup-image"
                             style={{
                                 maxWidth: '100%',
@@ -255,6 +289,18 @@ export default function Home() {
                                 objectFit: 'contain'
                             }}
                         />
+
+                        {/* Dot indicators */}
+                        <div className="popup-dots">
+                            {popupImages.map((_, i) => (
+                                <button
+                                    key={i}
+                                    className={`popup-dot${i === popupIndex ? ' active' : ''}`}
+                                    onClick={() => setPopupIndex(i)}
+                                    aria-label={`Go to image ${i + 1}`}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>,
                 document.body
