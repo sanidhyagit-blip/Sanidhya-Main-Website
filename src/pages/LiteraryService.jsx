@@ -1,6 +1,8 @@
+import { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal'
-import { BookOpen, Search, Globe, Building, BarChart3, GraduationCap, Library, PenTool, Trophy } from 'lucide-react'
+import { BookOpen, Search, Globe, Building, BarChart3, GraduationCap, Library, PenTool, Trophy, X } from 'lucide-react'
 
 const serviceData = {
     'book-chapter': {
@@ -21,6 +23,10 @@ const serviceData = {
             { icon: BookOpen, title: 'ISBN Registration', desc: 'Every published book receives an ISBN for global identification and cataloging.' },
             { icon: Search, title: 'Peer Reviewed', desc: 'All chapters undergo rigorous double-blind peer review by domain experts.' },
             { icon: Globe, title: 'Global Reach', desc: 'Published works are distributed across major academic databases and libraries.' },
+        ],
+        posters: [
+            { src: '/CallForBookChapter1.jpeg', alt: 'Call for Book Chapter – Poster 1' },
+            { src: '/CallForBookChapter2.jpeg', alt: 'Call for Book Chapter – Poster 2' },
         ],
     },
     'case-studies': {
@@ -64,12 +70,96 @@ const serviceData = {
 }
 
 export default function LiteraryService({ type }) {
-    useReveal()
     const data = serviceData[type]
+    const posters = data?.posters || []
+
+    const [popupVisible, setPopupVisible] = useState(false)
+    const [popupIndex, setPopupIndex] = useState(0)
+    useReveal()
+
+    /* Auto-show popup on mount for pages with posters */
+    useEffect(() => {
+        if (posters.length === 0) return
+        const timer = setTimeout(() => setPopupVisible(true), 1000)
+        return () => clearTimeout(timer)
+    }, [posters.length])
+
+    /* Arrow-key navigation */
+    useEffect(() => {
+        if (!popupVisible || posters.length === 0) return
+        const handleKey = (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                setPopupIndex((i) => (i > 0 ? i - 1 : posters.length - 1))
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                setPopupIndex((i) => (i < posters.length - 1 ? i + 1 : 0))
+            } else if (e.key === 'Escape') {
+                setPopupVisible(false)
+            }
+        }
+        window.addEventListener('keydown', handleKey)
+        return () => window.removeEventListener('keydown', handleKey)
+    }, [popupVisible, posters.length])
+
+    const popupPrev = useCallback(() => setPopupIndex((i) => (i > 0 ? i - 1 : posters.length - 1)), [posters.length])
+    const popupNext = useCallback(() => setPopupIndex((i) => (i < posters.length - 1 ? i + 1 : 0)), [posters.length])
 
     if (!data) return <div className="container" style={{ paddingTop: 120 }}><p>Page not found.</p></div>
 
     return (
+        <>
+            {/* ===== POPUP CAROUSEL ===== */}
+            {popupVisible && posters.length > 0 && createPortal(
+                <div className="patent-popup-overlay" onClick={() => setPopupVisible(false)}>
+                    <div className="patent-popup" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="patent-popup-close"
+                            onClick={() => setPopupVisible(false)}
+                            aria-label="Close popup"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        {posters.length > 1 && (
+                            <>
+                                <button className="popup-nav popup-nav-prev" onClick={popupPrev} aria-label="Previous image">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+                                </button>
+                                <button className="popup-nav popup-nav-next" onClick={popupNext} aria-label="Next image">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
+                                </button>
+                            </>
+                        )}
+
+                        <img
+                            src={posters[popupIndex].src}
+                            alt={posters[popupIndex].alt}
+                            className="patent-popup-image"
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '85vh',
+                                width: 'auto',
+                                height: 'auto',
+                                objectFit: 'contain'
+                            }}
+                        />
+
+                        {posters.length > 1 && (
+                            <div className="popup-dots">
+                                {posters.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        className={`popup-dot${i === popupIndex ? ' active' : ''}`}
+                                        onClick={() => setPopupIndex(i)}
+                                        aria-label={`Go to image ${i + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>,
+                document.body
+            )}
+
         <div className="page-enter">
             <div className="page-header">
                 <div className="container">
@@ -85,6 +175,39 @@ export default function LiteraryService({ type }) {
                 <div className="container">
                     <div className="content-body reveal">
                         <p style={{ fontSize: '1.05rem', lineHeight: 1.9 }}>{data.intro}</p>
+
+                        {/* ===== POSTER IMAGES (inline) ===== */}
+                        {posters.length > 0 && (
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: posters.length > 1 ? 'repeat(2, 1fr)' : '1fr',
+                                gap: 24,
+                                margin: '32px 0',
+                            }}>
+                                {posters.map((poster, i) => (
+                                    <div
+                                        key={i}
+                                        style={{
+                                            borderRadius: 'var(--radius-md)',
+                                            overflow: 'hidden',
+                                            border: '1px solid var(--border-light)',
+                                            boxShadow: 'var(--shadow-sm)',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease',
+                                        }}
+                                        onClick={() => { setPopupIndex(i); setPopupVisible(true) }}
+                                        onMouseOver={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                                        onMouseOut={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                                    >
+                                        <img
+                                            src={poster.src}
+                                            alt={poster.alt}
+                                            style={{ width: '100%', height: 'auto', display: 'block' }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <h2>Submission Guidelines</h2>
                         <ul>
@@ -117,5 +240,7 @@ export default function LiteraryService({ type }) {
                 </div>
             </div>
         </div>
+        </>
     )
 }
+
