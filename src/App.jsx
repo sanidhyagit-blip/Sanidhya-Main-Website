@@ -18,6 +18,7 @@ import IVCGSMT from './pages/IVCGSMT'
 import Members from './pages/Members'
 import OlderEvents from './pages/OlderEvents'
 import Gallery from './pages/Gallery'
+import Symposium2026 from './pages/Symposium2026'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="/members" element={<Members />} />
           <Route path="/past-events" element={<OlderEvents />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/symposium-2026" element={<Symposium2026 />} />
         </Route>
       </Routes>
     </>
