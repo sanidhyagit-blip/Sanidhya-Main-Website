@@ -244,7 +244,7 @@ function GalleryTab() {
     const fileInputRef = useRef()
 
     // Edit photo state
-    const [editingPhoto, setEditingPhoto] = useState(null) // photo object
+    const [editingPhoto, setEditingPhoto] = useState(null) // photo obje
     const [photoSaving, setPhotoSaving] = useState(false)
 
     // Filter photos by album
