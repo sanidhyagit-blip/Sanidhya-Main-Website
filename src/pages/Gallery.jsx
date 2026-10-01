@@ -124,101 +124,104 @@ export default function Gallery() {
     }, [currentIndex, displayPhotos])
 
     return (
-        <div className="page-enter">
-            <div className="page-header">
-                <div className="container">
-                    <div className="page-breadcrumb">
-                        <Link to="/">Home</Link> / <span>Gallery</span>
+        <>
+            <div className="page-enter">
+                <div className="page-header">
+                    <div className="container">
+                        <div className="page-breadcrumb">
+                            <Link to="/">Home</Link> / <span>Gallery</span>
+                        </div>
+                        <h1>Gallery</h1>
+                        <p>Moments captured from our events, conferences, and programs</p>
                     </div>
-                    <h1>Gallery</h1>
-                    <p>Moments captured from our events, conferences, and programs</p>
                 </div>
-            </div>
 
-            <section className="section">
-                <div className="container">
-                    {/* Album Filter Tabs */}
-                    <div className="gallery-filters reveal">
-                        <button
-                            className={`gallery-filter-btn ${activeAlbum === 'all' ? 'active' : ''}`}
-                            onClick={() => setActiveAlbum('all')}
-                            id="gallery-filter-all"
-                        >
-                            All Photos {!loading && `(${photos.length})`}
-                        </button>
-                        {albums.map(album => (
+                <section className="section">
+                    <div className="container">
+                        {/* Album Filter Tabs */}
+                        <div className="gallery-filters reveal">
                             <button
-                                key={album._id}
-                                className={`gallery-filter-btn ${activeAlbum === album._id ? 'active' : ''}`}
-                                onClick={() => setActiveAlbum(album._id)}
-                                id={`gallery-filter-${album.slug}`}
+                                className={`gallery-filter-btn ${activeAlbum === 'all' ? 'active' : ''}`}
+                                onClick={() => setActiveAlbum('all')}
+                                id="gallery-filter-all"
                             >
-                                {album.name}
+                                All Photos {!loading && `(${photos.length})`}
                             </button>
-                        ))}
-                    </div>
-
-                    {/* Album description */}
-                    {activeAlbum !== 'all' && (() => {
-                        const a = albums.find(a => a._id === activeAlbum)
-                        return a?.description
-                            ? <p className="reveal" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1.5rem', fontStyle: 'italic' }}>{a.description}</p>
-                            : null
-                    })()}
-
-                    {/* States */}
-                    {loading && <GallerySkeleton />}
-
-                    {!loading && error && (
-                        <div className="gallery-empty reveal">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
-                                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-                            </svg>
-                            <h3>Something went wrong</h3>
-                            <p>{error}</p>
-                        </div>
-                    )}
-
-                    {!loading && !error && displayPhotos.length === 0 && (
-                        <div className="gallery-empty reveal">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
-                                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
-                            </svg>
-                            <h3>Photos Coming Soon</h3>
-                            <p>Images for this album will be uploaded shortly. Check back later!</p>
-                        </div>
-                    )}
-
-                    {/* Gallery Grid */}
-                    {!loading && !error && displayPhotos.length > 0 && (
-                        <div className="gallery-grid reveal">
-                            {displayPhotos.map((photo, idx) => (
-                                <div
-                                    key={photo._id}
-                                    className={`gallery-item delay-${(idx % 6) + 1}`}
-                                    onClick={() => openLightbox(photo)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => e.key === 'Enter' && openLightbox(photo)}
-                                    id={`gallery-image-${photo._id}`}
+                            {albums.map(album => (
+                                <button
+                                    key={album._id}
+                                    className={`gallery-filter-btn ${activeAlbum === album._id ? 'active' : ''}`}
+                                    onClick={() => setActiveAlbum(album._id)}
+                                    id={`gallery-filter-${album.slug}`}
                                 >
-                                    <img src={photo.src} alt={photo.alt || photo.name} loading="lazy" />
-                                    <div className="gallery-item-overlay">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-                                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
-                                        </svg>
-                                        {(photo.name || photo.caption) && (
-                                            <span className="gallery-item-caption">{photo.name || photo.caption}</span>
-                                        )}
-                                    </div>
-                                </div>
+                                    {album.name}
+                                </button>
                             ))}
                         </div>
-                    )}
-                </div>
-            </section>
 
-            {/* Lightbox */}
+                        {/* Album description */}
+                        {activeAlbum !== 'all' && (() => {
+                            const a = albums.find(a => a._id === activeAlbum)
+                            return a?.description
+                                ? <p className="reveal" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1.5rem', fontStyle: 'italic' }}>{a.description}</p>
+                                : null
+                        })()}
+
+                        {/* States */}
+                        {loading && <GallerySkeleton />}
+
+                        {!loading && error && (
+                            <div className="gallery-empty reveal">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
+                                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                <h3>Something went wrong</h3>
+                                <p>{error}</p>
+                            </div>
+                        )}
+
+                        {!loading && !error && displayPhotos.length === 0 && (
+                            <div className="gallery-empty reveal">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                <h3>Photos Coming Soon</h3>
+                                <p>Images for this album will be uploaded shortly. Check back later!</p>
+                            </div>
+                        )}
+
+                        {/* Gallery Grid */}
+                        {!loading && !error && displayPhotos.length > 0 && (
+                            <div className="gallery-grid reveal">
+                                {displayPhotos.map((photo, idx) => (
+                                    <div
+                                        key={photo._id}
+                                        className={`gallery-item delay-${(idx % 6) + 1}`}
+                                        onClick={() => openLightbox(photo)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => e.key === 'Enter' && openLightbox(photo)}
+                                        id={`gallery-image-${photo._id}`}
+                                    >
+                                        <img src={photo.src} alt={photo.alt || photo.name} loading="lazy" />
+                                        <div className="gallery-item-overlay">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+                                            </svg>
+                                            {(photo.name || photo.caption) && (
+                                                <span className="gallery-item-caption">{photo.name || photo.caption}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </section>
+            </div>
+
+            {/* Lightbox – rendered outside .page-enter so the ancestor's
+                transform (from fadeInUp animation) doesn't break position:fixed */}
             <Lightbox
                 image={lightboxImage}
                 onClose={closeLightbox}
@@ -227,6 +230,6 @@ export default function Gallery() {
                 hasPrev={currentIndex > 0}
                 hasNext={currentIndex < displayPhotos.length - 1}
             />
-        </div>
+        </>
     )
 }
